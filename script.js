@@ -14,32 +14,42 @@ const bookElement = document.getElementById('book-element');
 const saveIndicator = document.getElementById('save-indicator');
 
 // CARGAR DATOS
+// HTML de la portada por defecto — funcion centralizada para no repetir el string
+function getCoverDefaultHTML() {
+    return [
+        '<br><br>',
+        '<h1 style="font-family: \'Dancing Script\', cursive; font-size: 4rem; margin-bottom: 10px; color: #8c5b65;">Sweet Notes</h1>',
+        '<h2 style="font-family: \'Lora\', serif; font-size: 1.5rem; font-weight: 300; color: #8c5b65;">Mi Recetario Personal \uD83C\uDF70</h2>'
+    ].join('');
+}
+
 function loadBookData() {
     try {
-        const saved = localStorage.getItem('mi_diario_recetas');
+        const saved    = localStorage.getItem('mi_diario_recetas');
         const savedIdx = localStorage.getItem('sweet_notes_index');
-        
+
         if (savedIdx) {
             recipesIndex = JSON.parse(savedIdx);
         }
-        
+
         if (saved) {
             pagesData = JSON.parse(saved);
-            if (!Array.isArray(pagesData) || pagesData.length === 0) throw new Error("Datos corruptos");
-            
-            // Aseguramos que siempre exista la página del índice (Spread 1)
-            if (pagesData.length < 2) {
-                pagesData.push({ left: '', right: '' });
+            if (!Array.isArray(pagesData) || pagesData.length === 0) throw new Error('Datos corruptos');
+
+            // Garantizar que siempre exista el spread del indice (spread 1)
+            if (pagesData.length < 2) pagesData.push({ left: '', right: '' });
+
+            // PORTADA (spread 0): preservar el contenido guardado (puede tener fotos polaroid).
+            // Solo inyectamos el HTML base si esta completamente vacio.
+            if (!pagesData[0]) pagesData[0] = { left: '', right: '' };
+            if (!pagesData[0].right || pagesData[0].right.trim() === '') {
+                pagesData[0].right = getCoverDefaultHTML();
             }
-            
-            pagesData[0] = {
-                left: '', 
-                right: `<br><br><br><h1 style="font-family: 'Dancing Script', cursive; font-size: 4rem; margin-bottom: 10px; color: #FDF9F1;">Sweet Notes</h1><h2 style="font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 300; color: #FDF9F1;">Mi Recetario Personal ♡</h2>`
-            };
         } else {
             initDefault();
         }
     } catch (error) {
+        console.warn('loadBookData error:', error);
         initDefault();
     }
     renderSpread(currentSpreadIndex);
@@ -49,7 +59,7 @@ function initDefault() {
     pagesData = [
         {
             left: '', 
-            right: `<br><br><br><h1 style="font-family: 'Dancing Script', cursive; font-size: 4rem; margin-bottom: 10px; color: #FDF9F1;">Sweet Notes</h1><h2 style="font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 300; color: #FDF9F1;">Mi Recetario Personal ♡</h2>`
+            right: getCoverDefaultHTML()
         },
         {
             left: '', // Espacio reservado estrictamente para el índice
@@ -652,34 +662,74 @@ if (localStorage.getItem('sweet_notes_toolbar_collapsed') === 'true') {
     toggleToolbar(true);
 }
 
-// SUBIR FOTOS
-const addPhotoBtn = document.getElementById('add-photo-btn');
-const imageUpload = document.getElementById('image-upload');
+// ============================================================
+// SUBIR FOTOS — con compresion Canvas y soporte para portada
+// ============================================================
+const addPhotoBtn  = document.getElementById('add-photo-btn');
+const imageUpload  = document.getElementById('image-upload');
 
 addPhotoBtn.addEventListener('click', () => { imageUpload.click(); });
 
+// Comprime una imagen base64 via Canvas y devuelve una Promise con el base64 comprimido
+function compressImage(base64, maxW, maxH, quality) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            let w = img.width, h = img.height;
+            if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+            if (h > maxH) { w = Math.round(w * maxH / h); h = maxH; }
+            const canvas = document.createElement('canvas');
+            canvas.width  = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => resolve(base64); // fallback sin compresion
+        img.src = base64;
+    });
+}
+
 imageUpload.addEventListener('change', function() {
     const file = this.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const base64Image = e.target.result;
-            const polaroidHtml = `
-                <div class="polaroid-wrapper" contenteditable="false" style="position: absolute; left: 10%; top: 10%; z-index: 50;">
-                    <div class="taped-photo" style="width: 200px;">
-                        <button class="delete-photo-btn" title="Eliminar foto">×</button>
-                        <div class="tape"></div>
-                        <img src="${base64Image}" alt="Receta terminada" draggable="false">
-                        <div class="resizer" title="Arrastrar para redimensionar"></div>
-                    </div>
-                </div>
-            `;
-            document.execCommand('insertHTML', false, polaroidHtml);
-            saveBookData();
-        };
-        reader.readAsDataURL(file);
-    }
-    this.value = '';
+    if (!file) return;
+    this.value = ''; // reset input inmediatamente para permitir re-subir el mismo archivo
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        // 1. Comprimir: max 800x800, calidad 0.75 — reduce peso sin perder claridad visible
+        const compressed = await compressImage(e.target.result, 800, 800, 0.75);
+
+        // 2. Construir el HTML de la polaroid
+        //    z-index: 10 (no 50) para que los botones fijos de nav (z-index:9999) siempre ganen
+        const polaroidHtml =
+            '<div class="polaroid-wrapper" contenteditable="false" style="position:absolute;left:10%;top:10%;z-index:10;">' +
+            '<div class="taped-photo" style="width:200px;">' +
+            '<button class="delete-photo-btn" title="Eliminar foto">×</button>' +
+            '<div class="tape"></div>' +
+            '<img src="' + compressed + '" alt="Receta" draggable="false">' +
+            '<div class="resizer" title="Arrastrar para redimensionar"></div>' +
+            '</div></div>';
+
+        // 3. Insertar en la pagina correcta
+        //    - Portada (spread 0): pageRight tiene contenteditable=false, execCommand no funciona.
+        //      Insertamos directamente con innerHTML +=
+        //    - Paginas normales: usar execCommand para respetar el cursor del usuario
+        if (currentSpreadIndex === 0) {
+            // Portada: insertar directamente en page-right
+            pageRight.insertAdjacentHTML('beforeend', polaroidHtml);
+        } else {
+            // Paginas editables: intentar con execCommand primero
+            const inserted = document.execCommand('insertHTML', false, polaroidHtml);
+            if (!inserted) {
+                // Fallback: insertar en el lado activo si execCommand falla
+                const target = (window.innerWidth <= 950 && mobileSide === 'right') ? pageRight : pageLeft;
+                target.insertAdjacentHTML('beforeend', polaroidHtml);
+            }
+        }
+
+        saveBookData();
+    };
+    reader.readAsDataURL(file);
 });
 
 // INICIAR

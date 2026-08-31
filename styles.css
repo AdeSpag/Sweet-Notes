@@ -586,8 +586,8 @@ body {
 /* MÓVIL: respetar zona inferior de botones de navegación */
 @media (max-width: 950px) {
     .go-to-index-btn {
-        bottom: 95px; /* por encima de los botones fijos de nav */
-        left: 15px;
+        bottom: 155px;  /* suficiente distancia sobre el boton Anterior (bottom:25px + 55px altura) */
+        left: 12px;
         padding: 7px 12px 7px 9px;
     }
 }
