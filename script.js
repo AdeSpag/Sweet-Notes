@@ -82,7 +82,6 @@ function renderSpread(index) {
     if (!pagesData[index]) return;
     const spread = pagesData[index];
     
-    // El toggle es crucial para el layout central (aplica transform translateX en CSS)
     bookElement.classList.toggle('is-cover', index === 0);
 
     pageLeft.innerHTML = fixOldPolaroids(spread.left || '');
@@ -113,20 +112,27 @@ let saveTimeout;
 });
 
 // ==========================================
-// DRAG & DROP
+// DRAG & DROP UNIFICADO (MOUSE + TOUCH MÓVIL)
 // ==========================================
 let isDragging = false, dragEl = null, dragOffsetX = 0, dragOffsetY = 0;
 let isResizing = false, currentResizingPhoto = null, startX = 0, startWidth = 0;
 
-document.addEventListener('mousedown', (e) => {
+function getClientX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+function getClientY(e) { return e.touches ? e.touches[0].clientY : e.clientY; }
+
+function handlePointerDown(e) {
+    // Si toca la barra de herramientas, ignorar
+    if (e.target.closest('.toolbar') || e.target.closest('.nav-btn')) return;
+
     if (e.target.classList.contains('resizer')) {
         isResizing = true;
         currentResizingPhoto = e.target.closest('.taped-photo');
-        startX = e.clientX;
+        startX = getClientX(e);
         startWidth = parseInt(window.getComputedStyle(currentResizingPhoto).width, 10);
         e.preventDefault();
         return;
     }
+    
     if (e.target.classList.contains('delete-photo-btn')) {
         const polaroidWrapper = e.target.closest('.polaroid-wrapper');
         if (polaroidWrapper) { polaroidWrapper.remove(); saveBookData(); }
@@ -138,35 +144,52 @@ document.addEventListener('mousedown', (e) => {
         isDragging = true; dragEl = polaroid;
         document.querySelectorAll('.polaroid-wrapper').forEach(p => p.style.zIndex = '50');
         polaroid.style.zIndex = '100';
+        
         const rect = polaroid.getBoundingClientRect();
         const parentRect = polaroid.closest('.page-content').getBoundingClientRect();
-        dragOffsetX = e.clientX - rect.left;
-        dragOffsetY = e.clientY - rect.top;
-        e.preventDefault(); 
+        
+        dragOffsetX = getClientX(e) - rect.left;
+        dragOffsetY = getClientY(e) - rect.top;
+        
+        // Solo prevenir por defecto en ratón, en touch interfiere con scroll si no es intencional,
+        // pero necesitamos detener el scroll para arrastrar.
+        if (!e.touches) e.preventDefault(); 
     }
-});
+}
 
-document.addEventListener('mousemove', (e) => {
+function handlePointerMove(e) {
     if (isResizing && currentResizingPhoto) {
-        const newWidth = startWidth + (e.clientX - startX);
+        const newWidth = startWidth + (getClientX(e) - startX);
         if (newWidth > 80 && newWidth < 800) currentResizingPhoto.style.width = newWidth + 'px';
+        if (e.touches) e.preventDefault(); // Evitar scroll al redimensionar en móvil
         return;
     }
     if (isDragging && dragEl) {
         const parentRect = dragEl.closest('.page-content').getBoundingClientRect();
-        let newLeft = e.clientX - parentRect.left - dragOffsetX;
-        let newTop = e.clientY - parentRect.top - dragOffsetY;
+        let newLeft = getClientX(e) - parentRect.left - dragOffsetX;
+        let newTop = getClientY(e) - parentRect.top - dragOffsetY;
         dragEl.style.left = newLeft + 'px';
         dragEl.style.top = newTop + 'px';
+        if (e.touches) e.preventDefault(); // Evitar scroll al arrastrar en móvil
     }
-});
+}
 
-document.addEventListener('mouseup', () => {
+function handlePointerUp() {
     if (isResizing || isDragging) {
         isResizing = false; isDragging = false; currentResizingPhoto = null; dragEl = null;
         saveBookData();
     }
-});
+}
+
+// Attach events for Mouse
+document.addEventListener('mousedown', handlePointerDown);
+document.addEventListener('mousemove', handlePointerMove);
+document.addEventListener('mouseup', handlePointerUp);
+
+// Attach events for Touch (Móvil)
+document.addEventListener('touchstart', handlePointerDown, { passive: false });
+document.addEventListener('touchmove', handlePointerMove, { passive: false });
+document.addEventListener('touchend', handlePointerUp);
 
 document.addEventListener('dblclick', (e) => {
     if (e.target.closest('.toolbar') || e.target.closest('.nav-btn')) return;
@@ -176,12 +199,15 @@ document.addEventListener('dblclick', (e) => {
 
 
 // ==========================================
-// ANIMACIÓN 3D PERFECTA SIN "POP" (PRE-CARGA)
+// ANIMACIÓN 3D PERFECTA SIN "POP"
 // ==========================================
 function turnPage3D(direction) {
     if (isFlipping) return;
+    // En móviles (<=950px), omitimos la animación 3D porque apilamos las páginas verticalmente
     if (window.innerWidth <= 950) {
         executePageChange(direction);
+        // Scroll automático hacia arriba en móvil para ver la nueva página
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
     }
     
@@ -199,64 +225,42 @@ function turnPage3D(direction) {
         backFace.className = 'flipper-page back';
 
         if (direction === 'next') {
-            // FRONT: lo que vemos ahora a la derecha
             frontFace.innerHTML = pageRight.innerHTML;
-            
-            // BACK: lo que será la página izquierda
             const nextSpread = pagesData[currentSpreadIndex + 1] || {left: '', right: ''};
             backFace.innerHTML = fixOldPolaroids(nextSpread.left || '');
             
             if (currentSpreadIndex === 0) {
-                // Si abrimos la tapa, el frente debe ser la tapa
                 frontFace.style.backgroundColor = '#d98a9d';
                 frontFace.style.backgroundImage = 'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 6px)';
                 frontFace.style.borderLeft = '12px solid #b56b7f';
-                
-                // MÁGIA: Quitamos is-cover ahora. El libro (wrapper) empieza a deslizarse a la derecha mientras la hoja gira
                 bookElement.classList.remove('is-cover');
             }
 
-            // MÁGIA: Pre-cargamos la página izquierda real inmediatamente para que esté lista debajo del flipper
             pageLeft.innerHTML = backFace.innerHTML;
-            
             flipper3D.appendChild(frontFace);
             flipper3D.appendChild(backFace);
             bookElement.appendChild(flipper3D);
-            
-            // Ocultamos la derecha original para no duplicar el frontFace
             pageRight.style.visibility = 'hidden'; 
-            
-            // Forzar reflow y activar animación
             void flipper3D.offsetWidth;
             flipper3D.classList.add('active');
             
         } else {
-            // PREV: la página izquierda actual voltea a la derecha
             frontFace.innerHTML = pageLeft.innerHTML;
-            
-            // BACK: lo que será la página derecha (o la tapa)
             const prevSpread = pagesData[currentSpreadIndex - 1] || {left: '', right: ''};
             backFace.innerHTML = fixOldPolaroids(prevSpread.right || '');
             
             if (currentSpreadIndex - 1 === 0) {
-                // Si cerramos hacia la tapa, el backface es la tapa
                 backFace.style.backgroundColor = '#d98a9d';
                 backFace.style.backgroundImage = 'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 6px)';
                 backFace.style.borderLeft = '12px solid #b56b7f';
-                
-                // MÁGIA: Agregamos is-cover ahora. El libro empieza a deslizarse al centro mientras se cierra
                 bookElement.classList.add('is-cover');
             }
 
-            // MÁGIA: Pre-cargamos la página derecha real inmediatamente debajo del flipper
             pageRight.innerHTML = backFace.innerHTML;
-
             flipper3D.appendChild(frontFace);
             flipper3D.appendChild(backFace);
             bookElement.appendChild(flipper3D);
-            
             pageLeft.style.visibility = 'hidden';
-            
             void flipper3D.offsetWidth;
             flipper3D.classList.add('active');
         }
@@ -336,8 +340,8 @@ imageUpload.addEventListener('change', function() {
         reader.onload = function(e) {
             const base64Image = e.target.result;
             const polaroidHtml = `
-                <div class="polaroid-wrapper" contenteditable="false" style="position: absolute; left: 20%; top: 20%; z-index: 50;">
-                    <div class="taped-photo" style="width: 250px;">
+                <div class="polaroid-wrapper" contenteditable="false" style="position: absolute; left: 10%; top: 10%; z-index: 50;">
+                    <div class="taped-photo" style="width: 200px;">
                         <button class="delete-photo-btn" title="Eliminar foto">×</button>
                         <div class="tape"></div>
                         <img src="${base64Image}" alt="Receta terminada" draggable="false">
