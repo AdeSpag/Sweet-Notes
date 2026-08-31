@@ -1,6 +1,6 @@
-// ESTADO DEL LIBRO
 let pagesData = [];
 let currentSpreadIndex = 0;
+let mobileSide = 'right'; // Controla si en móvil se ve la izquierda o la derecha
 let isFlipping = false; 
 
 const pageLeft = document.getElementById('page-left');
@@ -90,8 +90,27 @@ function renderSpread(index) {
     numLeft.textContent = (index * 2) + 1;
     numRight.textContent = (index * 2) + 2;
     
+    // Control de vista de Single Page (Móvil)
+    if (window.innerWidth <= 950) {
+        if (index === 0) mobileSide = 'right'; // La tapa siempre es la derecha
+        bookElement.classList.toggle('show-mobile-left', mobileSide === 'left');
+        bookElement.classList.toggle('show-mobile-right', mobileSide === 'right');
+    } else {
+        // Limpiamos las clases si estamos en Desktop
+        bookElement.classList.remove('show-mobile-left', 'show-mobile-right');
+    }
+    
     btnPrev.style.visibility = index === 0 ? 'hidden' : 'visible';
 }
+
+// Escuchar cambios de tamaño de pantalla para adaptar la vista al instante
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 950) {
+        bookElement.classList.remove('show-mobile-left', 'show-mobile-right');
+    } else {
+        renderSpread(currentSpreadIndex);
+    }
+});
 
 function saveBookData() {
     if (isFlipping) return; 
@@ -203,14 +222,39 @@ document.addEventListener('dblclick', (e) => {
 // ==========================================
 function turnPage3D(direction) {
     if (isFlipping) return;
-    // En móviles (<=950px), omitimos la animación 3D porque apilamos las páginas verticalmente
+    
+    // LÓGICA DE NAVEGACIÓN MÓVIL (SINGLE PAGE)
     if (window.innerWidth <= 950) {
-        executePageChange(direction);
-        // Scroll automático hacia arriba en móvil para ver la nueva página
+        saveBookData();
+        if (direction === 'next') {
+            if (currentSpreadIndex === 0) {
+                currentSpreadIndex = 1; mobileSide = 'left';
+            } else if (mobileSide === 'left') {
+                mobileSide = 'right';
+            } else {
+                currentSpreadIndex++; mobileSide = 'left';
+            }
+        } else {
+            if (currentSpreadIndex === 1 && mobileSide === 'left') {
+                currentSpreadIndex = 0; mobileSide = 'right';
+            } else if (mobileSide === 'right' && currentSpreadIndex > 0) {
+                mobileSide = 'left';
+            } else {
+                currentSpreadIndex--; mobileSide = 'right';
+            }
+        }
+        
+        // Agregar nueva hoja si llegamos al final
+        if (currentSpreadIndex >= pagesData.length) {
+            pagesData.push({ left: '', right: '' });
+        }
+        
+        renderSpread(currentSpreadIndex);
         window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
     }
     
+    // LÓGICA DESKTOP (Intacta)
     isFlipping = true;
     saveBookData(); 
 
@@ -301,6 +345,13 @@ btnNext.addEventListener('click', () => turnPage3D('next'));
 // ==========================================
 // BARRA DE HERRAMIENTAS
 // ==========================================
+const toggleToolbarBtn = document.getElementById('toggle-toolbar-btn');
+const toolbarElement = document.querySelector('.toolbar');
+toggleToolbarBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    toolbarElement.classList.toggle('collapsed');
+});
+
 const toolBtns = document.querySelectorAll('.tool-btn[data-command]');
 toolBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {

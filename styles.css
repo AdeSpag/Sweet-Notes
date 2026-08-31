@@ -39,6 +39,17 @@ body {
 .brand { display: flex; align-items: center; gap: 10px; }
 
 /* BARRA DE HERRAMIENTAS - CENTRADO PERFECTO Y RESPONSIVA */
+.toggle-toolbar-btn {
+    position: fixed; top: 15px; right: 20px; z-index: 2000;
+    width: 45px; height: 45px; border-radius: 50%;
+    background: var(--toolbar-bg); border: 1px solid var(--toolbar-border);
+    color: var(--accent-pink); font-size: 1.2rem; cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex; justify-content: center; align-items: center;
+}
+.toggle-toolbar-btn:hover { transform: scale(1.1); background: #fff; }
+
 .toolbar {
     position: fixed; 
     top: 70px; 
@@ -48,6 +59,11 @@ body {
     padding: 8px 20px; border-radius: 40px; display: flex; gap: 12px; align-items: center;
     box-shadow: 0 4px 15px rgba(0,0,0,0.12); z-index: 1000; backdrop-filter: blur(8px);
     width: max-content; max-width: 95vw;
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), visibility 0.4s;
+}
+.toolbar.collapsed {
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transform: translate(-50%, -30px);
 }
 .toolbar select, .tool-btn {
     background: transparent; border: none; color: var(--text-color); font-family: inherit;
@@ -259,50 +275,67 @@ body {
    MODO MÓVIL (DISEÑO ESPECÍFICO PARA CELULARES)
    ========================================================= */
 @media (max-width: 950px) {
-    .bg-sticker { display: none; } /* Limpiamos los fondos para no saturar el celu */
+    .bg-sticker { display: none; } 
     
-    .app-header { display: none; } /* Ocultamos el header grande flotante */
+    /* Recuperamos a Remy en celular, en la esquina sin pisar botones */
+    .sticker-remy {
+        display: block;
+        width: 100px;
+        bottom: 95px; /* Justo por encima del botón "siguiente" */
+        right: 15px;
+        left: auto; /* Anulamos la posición izquierda de desktop */
+        transform: rotate(-5deg);
+        z-index: 1; /* Bien atrás */
+        opacity: 0.85;
+    }
+    
+    .app-header { display: none; } 
     
     .app-container { padding-top: 80px; padding-bottom: 90px; }
     
-    /* Toolbar deslizable horizontalmente para móviles (estilo app nativa) */
+    .toggle-toolbar-btn { top: 10px; right: 10px; width: 40px; height: 40px; }
+    
     .toolbar { 
         justify-content: flex-start; overflow-x: auto; -webkit-overflow-scrolling: touch; 
-        scrollbar-width: none; top: 10px; width: 95vw; padding: 10px 15px;
+        scrollbar-width: none; top: 60px; width: 95vw; padding: 10px 15px;
     }
-    .toolbar::-webkit-scrollbar { display: none; } /* Ocultar barra de scroll en Chrome/Safari */
+    .toolbar.collapsed { transform: translate(-50%, -20px); }
+    .toolbar::-webkit-scrollbar { display: none; } 
+    .toolbar::-webkit-scrollbar { display: none; } 
     
-    /* El libro cambia a modo Bloc de Notas vertical */
     .book-container { padding: 0 15px; width: 100%; display: flex; justify-content: center; }
     
     .book { 
         width: 100%; max-width: 500px; height: auto; min-height: 80vh; flex-direction: column; 
-        transform: none !important; /* Deshabilitar deslizamientos 3D */
+        transform: none !important; 
     }
     
     .book.is-cover { transform: none !important; }
-    .book.is-cover .right-page { min-height: 70vh; border-radius: 15px; }
+    .book.is-cover .right-page { min-height: 75vh; border-radius: 15px; }
     
-    .page { width: 100%; flex: none; min-height: 50vh; padding: 30px 20px; }
+    /* LÓGICA DE SINGLE PAGE VIEW (Una sola hoja por vez) */
+    .page { width: 100%; flex: none; min-height: 75vh; padding: 30px 20px; border-radius: 15px !important; border: none !important; }
     
-    /* Bordes redondeados para vista apilada */
-    .left-page { border-radius: 15px 15px 0 0; border-right: none; border-bottom: 2px dashed rgba(0,0,0,0.1); }
-    .right-page { border-radius: 0 0 15px 15px; }
+    /* Clases dinámicas manejadas por JS para ocultar la página inactiva */
+    .book.show-mobile-left .right-page { display: none !important; }
+    .book.show-mobile-right .left-page { display: none !important; }
     
-    /* Ocultar sombras del lomo que no aplican en vertical */
     .left-page::after, .right-page::after { display: none; }
     
-    /* Botones de navegación fijos en la parte inferior de la pantalla */
+    /* Botones FIJOS E INAMOVIBLES */
     .nav-btn { 
-        position: fixed; bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
-        width: 60px; height: 60px; background: #fff;
+        position: fixed !important; 
+        bottom: 25px !important; 
+        z-index: 9999 !important;
+        width: 55px !important; 
+        height: 55px !important; 
+        box-shadow: 0 5px 15px rgba(0,0,0,0.35) !important;
     }
-    .left-nav { left: 15px; }
-    .right-nav { right: 15px; }
+    .left-nav { left: 20px !important; }
+    .right-nav { right: 20px !important; }
     
-    /* Ajustes menores de texto en móvil */
     .page-content { font-size: 1.05rem; line-height: 28px; }
-    .polaroid-wrapper::after { display: none; } /* Ocultar el texto flotante de doble click en móvil */
-    .resizer { opacity: 1; } /* Hacer resizer siempre visible en móvil */
-    .delete-photo-btn { opacity: 1; } /* Hacer botón borrar siempre visible en móvil */
+    .polaroid-wrapper::after { display: none; } 
+    .resizer { opacity: 1; } 
+    .delete-photo-btn { opacity: 1; } 
 }
