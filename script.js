@@ -1,4 +1,4 @@
-let pagesData = [];
+﻿let pagesData = [];
 let recipesIndex = [];
 let currentSpreadIndex = 0;
 let mobileSide = 'right'; // Controla si en móvil se ve la izquierda o la derecha
@@ -154,7 +154,7 @@ function generateIndexHTML() {
     
     return `
         <div class="index-container" contenteditable="false">
-            <h2 style="font-family: 'Dancing Script', cursive; font-size: 2.8rem; color: #8c5b65; text-align: center; border-bottom: 2px dashed rgba(217, 138, 157, 0.5); padding-bottom: 10px; margin-bottom: 20px;">Índice de Recetas</h2>
+            <h2 style="font-family: 'Dancing Script', cursive; font-size: 2.8rem; color: #8c5b65; text-align: center; border-bottom: 2px dashed rgba(217, 138, 157, 0.5); padding-bottom: 10px; margin-bottom: 20px; line-height: 1.4; padding-top: 15px;">Índice de Recetas</h2>
             <ul class="index-list">
                 ${listHTML}
             </ul>
@@ -413,9 +413,11 @@ function jumpToSpread(targetIndex, targetSide = 'left') {
             }
             
             if (currentSpreadIndex === 0) {
-                frontFace.style.backgroundColor = '#d98a9d';
-                frontFace.style.backgroundImage = 'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 6px)';
-                frontFace.style.borderLeft = '12px solid #b56b7f';
+                frontFace.style.backgroundColor = '#fcf1f3';
+                frontFace.style.backgroundImage = 'radial-gradient(rgba(217, 138, 157, 0.15) 2px, transparent 2px)';
+                frontFace.style.backgroundSize = '20px 20px';
+                if(typeof backFace !== 'undefined') backFace.style.backgroundSize = '20px 20px';;
+                frontFace.style.borderLeft = '14px solid #e6b8c2';
                 bookElement.classList.remove('is-cover');
             }
             
@@ -434,9 +436,11 @@ function jumpToSpread(targetIndex, targetSide = 'left') {
             backFace.innerHTML = fixOldPolaroids(prevSpread.right || '');
             
             if (targetIndex === 0) {
-                backFace.style.backgroundColor = '#d98a9d';
-                backFace.style.backgroundImage = 'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 6px)';
-                backFace.style.borderLeft = '12px solid #b56b7f';
+                backFace.style.backgroundColor = '#fcf1f3';
+                backFace.style.backgroundImage = 'radial-gradient(rgba(217, 138, 157, 0.15) 2px, transparent 2px)';
+                frontFace.style.backgroundSize = '20px 20px';
+                if(typeof backFace !== 'undefined') backFace.style.backgroundSize = '20px 20px';;
+                backFace.style.borderLeft = '14px solid #e6b8c2';
                 bookElement.classList.add('is-cover');
             }
             
@@ -526,9 +530,11 @@ function turnPage3D(direction) {
             backFace.innerHTML = fixOldPolaroids(nextSpread.left || '');
             
             if (currentSpreadIndex === 0) {
-                frontFace.style.backgroundColor = '#d98a9d';
-                frontFace.style.backgroundImage = 'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 6px)';
-                frontFace.style.borderLeft = '12px solid #b56b7f';
+                frontFace.style.backgroundColor = '#fcf1f3';
+                frontFace.style.backgroundImage = 'radial-gradient(rgba(217, 138, 157, 0.15) 2px, transparent 2px)';
+                frontFace.style.backgroundSize = '20px 20px';
+                if(typeof backFace !== 'undefined') backFace.style.backgroundSize = '20px 20px';;
+                frontFace.style.borderLeft = '14px solid #e6b8c2';
                 bookElement.classList.remove('is-cover');
             }
 
@@ -546,9 +552,11 @@ function turnPage3D(direction) {
             backFace.innerHTML = fixOldPolaroids(prevSpread.right || '');
             
             if (currentSpreadIndex - 1 === 0) {
-                backFace.style.backgroundColor = '#d98a9d';
-                backFace.style.backgroundImage = 'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 6px)';
-                backFace.style.borderLeft = '12px solid #b56b7f';
+                backFace.style.backgroundColor = '#fcf1f3';
+                backFace.style.backgroundImage = 'radial-gradient(rgba(217, 138, 157, 0.15) 2px, transparent 2px)';
+                frontFace.style.backgroundSize = '20px 20px';
+                if(typeof backFace !== 'undefined') backFace.style.backgroundSize = '20px 20px';;
+                backFace.style.borderLeft = '14px solid #e6b8c2';
                 bookElement.classList.add('is-cover');
             }
 

@@ -1,5 +1,5 @@
-/* =========================================
-   PALETA VINTAGE RÚSTICA + PINKY (SWEET NOTES)
+﻿/* =========================================
+   PALETA VINTAGE RÃšSTICA + PINKY (SWEET NOTES)
    ========================================= */
 :root {
     --bg-outside: #e6d3d8; 
@@ -96,13 +96,28 @@ body {
     opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.8s;
 }
 .book.is-cover .right-page {
-    background-color: #d98a9d; 
-    background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 6px);
-    color: #FDF9F1;
+    background-color: #fcf1f3;
+    background-image: radial-gradient(rgba(217, 138, 157, 0.15) 2px, transparent 2px);
+    background-size: 20px 20px;
+    color: #8c5b65 !important;
     border-radius: 5px 15px 15px 5px;
     box-shadow: 15px 25px 45px rgba(0,0,0,0.25), inset 15px 0 25px rgba(0,0,0,0.15);
-    border-left: 12px solid #b56b7f; 
+    border-left: 14px solid #e6b8c2;
     display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+    position: relative;
+}
+.book.is-cover .right-page * {
+    color: #8c5b65 !important;
+    text-shadow: none !important;
+}
+.book.is-cover .right-page::before {
+    content: '';
+    position: absolute;
+    top: 15px; left: 15px; right: 15px; bottom: 15px;
+    border: 2px dashed rgba(140, 91, 101, 0.4);
+    border-radius: 5px 10px 10px 5px;
+    pointer-events: none;
+    z-index: 10;
 }
 .book.is-cover .page-content {
     display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; overflow: hidden;
@@ -111,7 +126,7 @@ body {
 .book.is-cover .right-page::after { display: none; } 
 
 
-/* PÁGINAS INTERNAS */
+/* PÃGINAS INTERNAS */
 .page {
     flex: 1; width: 450px; padding: 50px 45px; display: flex; flex-direction: column; position: relative;
     background-color: var(--paper-color);
@@ -160,7 +175,7 @@ body {
    ========================================================= */
 .polaroid-wrapper { 
     position: absolute; display: flex; justify-content: center; z-index: 50; cursor: grab;
-    /* Para móviles, evitamos acciones nativas que interfieran con el arrastre JS */
+    /* Para mÃ³viles, evitamos acciones nativas que interfieran con el arrastre JS */
     touch-action: none; 
 }
 .polaroid-wrapper:active { cursor: grabbing; z-index: 100 !important; }
@@ -204,7 +219,7 @@ body {
 
 
 /* =========================================================
-   ANIMACIÓN 3D FLUIDA
+   ANIMACIÃ“N 3D FLUIDA
    ========================================================= */
 .flipper-3d {
     position: absolute; top: 0; left: 50%; width: 50%; height: 100%;
@@ -239,7 +254,7 @@ body {
 .flipper-3d.active .flipper-page.back::after { opacity: 1; }
 
 
-/* NAVEGACIÓN */
+/* NAVEGACIÃ“N */
 .nav-btn {
     background: var(--paper-color); border: 2px solid var(--toolbar-border); color: var(--text-color);
     width: 50px; height: 50px; border-radius: 50%; font-size: 1.5rem; cursor: pointer;
@@ -256,7 +271,7 @@ body {
 .save-indicator.show { opacity: 1; }
 
 /* =========================================================
-   MODO MÓVIL (DISEÑO ESPECÍFICO PARA CELULARES)
+   MODO MÃ“VIL (DISEÃ‘O ESPECÃFICO PARA CELULARES)
    ========================================================= */
 @media (max-width: 950px) {
     .bg-sticker { display: none; } 
@@ -265,11 +280,11 @@ body {
     .sticker-remy {
         display: block;
         width: 100px;
-        bottom: 95px; /* Justo por encima del botón "siguiente" */
+        bottom: 95px; /* Justo por encima del botÃ³n "siguiente" */
         right: 15px;
-        left: auto; /* Anulamos la posición izquierda de desktop */
+        left: auto; /* Anulamos la posiciÃ³n izquierda de desktop */
         transform: rotate(-5deg);
-        z-index: 1; /* Bien atrás */
+        z-index: 1; /* Bien atrÃ¡s */
         opacity: 0.85;
     }
     
@@ -291,12 +306,35 @@ body {
     }
     
     .book.is-cover { transform: none !important; }
-    .book.is-cover .right-page { min-height: 75vh; border-radius: 15px; }
+    .book.is-cover .right-page {
+    background-color: #fcf1f3;
+    background-image: radial-gradient(rgba(217, 138, 157, 0.15) 2px, transparent 2px);
+    background-size: 20px 20px;
+    color: #8c5b65 !important;
+    border-radius: 5px 15px 15px 5px;
+    box-shadow: 15px 25px 45px rgba(0,0,0,0.25), inset 15px 0 25px rgba(0,0,0,0.15);
+    border-left: 14px solid #e6b8c2;
+    display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+    position: relative;
+}
+.book.is-cover .right-page * {
+    color: #8c5b65 !important;
+    text-shadow: none !important;
+}
+.book.is-cover .right-page::before {
+    content: '';
+    position: absolute;
+    top: 15px; left: 15px; right: 15px; bottom: 15px;
+    border: 2px dashed rgba(140, 91, 101, 0.4);
+    border-radius: 5px 10px 10px 5px;
+    pointer-events: none;
+    z-index: 10;
+}
     
-    /* LÓGICA DE SINGLE PAGE VIEW (Una sola hoja por vez) */
-    .page { width: 100%; flex: none; min-height: 75vh; padding: 30px 20px; border-radius: 15px !important; border: none !important; }
+    /* LÃ“GICA DE SINGLE PAGE VIEW (Una sola hoja por vez) */
+    .page { width: 100%; flex: none; min-height: 75vh; padding: 30px 20px 90px 20px; border-radius: 15px !important; border: none !important; }
     
-    /* Clases dinámicas manejadas por JS para ocultar la página inactiva */
+    /* Clases dinÃ¡micas manejadas por JS para ocultar la pÃ¡gina inactiva */
     .book.show-mobile-left .right-page { display: none !important; }
     .book.show-mobile-right .left-page { display: none !important; }
     
@@ -312,6 +350,7 @@ body {
         box-shadow: 0 5px 15px rgba(0,0,0,0.35) !important;
     }
     .left-nav { left: 20px !important; }
+    .page-number { left: 50% !important; right: auto !important; transform: translateX(-50%); bottom: 25px !important; }
     .right-nav { right: 20px !important; }
     
     .page-content { font-size: 1.05rem; line-height: 28px; }
@@ -321,7 +360,7 @@ body {
 }
 
 /* =========================================================
-   �NDICE Y BOT�N AGREGAR RECETA
+   ÍNDICE Y BOTÓN AGREGAR RECETA
    ========================================================= */
 .index-container {
     height: 100%;
@@ -385,19 +424,12 @@ body {
     opacity: 0;
     pointer-events: none;
 }
-.open-toolbar-btn {
-    position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
-    background: var(--toolbar-bg); border: 1px solid var(--toolbar-border);
-    color: var(--text-color); font-family: var(--font-ui);
-    padding: 6px 16px; border-radius: 20px; cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.12); z-index: 1001;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
-    font-size: 0.95rem; font-weight: bold;
-}
+.open-toolbar-btn { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); background: var(--toolbar-bg); border: 1px solid var(--toolbar-border); color: var(--text-color); font-family: var(--font-ui); width: 42px; height: 42px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.12); z-index: 1001; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); font-size: 1.2rem; }
 .open-toolbar-btn:hover { background: rgba(217, 138, 157, 0.25); transform: translateX(-50%) scale(1.05); }
 .open-toolbar-btn.hidden { opacity: 0; pointer-events: none; transform: translate(-50%, -20px); }
 
 @media (max-width: 950px) {
     .toolbar.collapsed { transform: translateY(-150%) !important; }
-    .open-toolbar-btn { width: auto; font-size: 0.9rem; padding: 6px 12px; }
+    .open-toolbar-btn { top: 10px; }
 }
+
