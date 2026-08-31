@@ -255,6 +255,9 @@ body {
 }
 .save-indicator.show { opacity: 1; }
 
+/* BOTÓN COLAPSABLE MÓVIL (Oculto en desktop) */
+#toggle-toolbar-btn { display: none; }
+
 /* =========================================================
    MODO MÓVIL (DISEÑO ESPECÍFICO PARA CELULARES)
    ========================================================= */
@@ -277,9 +280,36 @@ body {
     
     .app-container { padding-top: 80px; padding-bottom: 90px; }
     
+    /* Botón colapsable iOS Safe Area */
+    #toggle-toolbar-btn {
+        display: flex; justify-content: center; align-items: center;
+        position: fixed;
+        /* env() previene que quede atrás del Notch o Isla Dinámica de iOS */
+        top: calc(env(safe-area-inset-top, 15px) + 15px);
+        right: 15px;
+        width: 50px; height: 50px;
+        border-radius: 50%;
+        background: var(--accent-pink);
+        color: #fff;
+        border: 2px solid #fff;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        font-size: 1.4rem;
+        z-index: 9999; /* Siempre arriba de todo */
+        cursor: pointer;
+    }
+    
     .toolbar { 
         justify-content: flex-start; overflow-x: auto; -webkit-overflow-scrolling: touch; 
-        scrollbar-width: none; top: 10px; width: 95vw; padding: 10px 15px;
+        scrollbar-width: none; 
+        width: 95vw; padding: 10px 15px;
+        /* Ubicar debajo del Safe Area + altura del botón */
+        top: calc(env(safe-area-inset-top, 15px) + 75px);
+        transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease;
+    }
+    .toolbar.collapsed {
+        transform: translate(-50%, -150%);
+        opacity: 0;
+        pointer-events: none;
     }
     .toolbar::-webkit-scrollbar { display: none; } 
     

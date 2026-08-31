@@ -8,8 +8,8 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Dancing+Script:wght@500;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Rye&display=swap" rel="stylesheet">
     
-    <!-- FORZAR CACHÉ V15 - OPTIMIZACIÓN MOBILE TOTAL Y LISTO PARA GITHUB -->
-    <link rel="stylesheet" href="styles.css?v=15">
+    <!-- FORZAR CACHÉ V16 - BUGFIX MÓVIL (COMPRESIÓN, LOCALSTORAGE, SAFE-AREA IOS) -->
+    <link rel="stylesheet" href="styles.css?v=16">
 </head>
 <body>
     
@@ -23,6 +23,9 @@
             <h1 style="font-family: 'Dancing Script', cursive; font-size: 2.2rem; color: #8c5b65; font-weight: 700; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">Sweet Notes</h1>
         </div>
     </header>
+
+    <!-- BOTÓN COLAPSABLE MÓVIL IOS (SAFE AREA) -->
+    <button id="toggle-toolbar-btn" title="Mostrar/Ocultar Herramientas">✏️</button>
 
     <div class="toolbar">
         <select id="fontName" title="Tipo de letra">
@@ -93,6 +96,6 @@
         <div id="save-indicator" class="save-indicator">Guardado...</div>
     </div>
 
-    <script src="script.js?v=15"></script>
+    <script src="script.js?v=16"></script>
 </body>
 </html>

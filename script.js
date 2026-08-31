@@ -19,11 +19,7 @@ function loadBookData() {
         if (saved) {
             pagesData = JSON.parse(saved);
             if (!Array.isArray(pagesData) || pagesData.length === 0) throw new Error("Datos corruptos");
-            
-            pagesData[0] = {
-                left: '', 
-                right: `<br><br><br><h1 style="font-family: 'Dancing Script', cursive; font-size: 4rem; margin-bottom: 10px; color: #FDF9F1;">Sweet Notes</h1><h2 style="font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 300; color: #FDF9F1;">Mi Recetario Personal ♡</h2>`
-            };
+            // Ya no sobreescribimos la portada (pagesData[0]) para que se conserven las imágenes del usuario.
         } else {
             initDefault();
         }
@@ -371,7 +367,7 @@ colorSwatches.forEach(swatch => {
     });
 });
 
-// SUBIR FOTOS
+// SUBIR FOTOS (COMPRESIÓN PARA NO TRABAR EL CELULAR)
 const addPhotoBtn = document.getElementById('add-photo-btn');
 const imageUpload = document.getElementById('image-upload');
 
@@ -382,19 +378,42 @@ imageUpload.addEventListener('change', function() {
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            const base64Image = e.target.result;
-            const polaroidHtml = `
-                <div class="polaroid-wrapper" contenteditable="false" style="position: absolute; left: 10%; top: 10%; z-index: 50;">
-                    <div class="taped-photo" style="width: 200px;">
-                        <button class="delete-photo-btn" title="Eliminar foto">×</button>
-                        <div class="tape"></div>
-                        <img src="${base64Image}" alt="Receta terminada" draggable="false">
-                        <div class="resizer" title="Arrastrar para redimensionar"></div>
+            const imgObj = new Image();
+            imgObj.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 800; // Resolución máxima
+                const MAX_HEIGHT = 800;
+                let width = imgObj.width;
+                let height = imgObj.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                } else {
+                    if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(imgObj, 0, 0, width, height);
+
+                // Compresión agresiva a JPEG 0.7 para que no reviente el LocalStorage
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+                const polaroidHtml = `
+                    <div class="polaroid-wrapper" contenteditable="false" style="position: absolute; left: 10%; top: 10%; z-index: 50;">
+                        <div class="taped-photo" style="width: 200px;">
+                            <button class="delete-photo-btn" title="Eliminar foto">×</button>
+                            <div class="tape"></div>
+                            <img src="${compressedBase64}" alt="Receta terminada" draggable="false">
+                            <div class="resizer" title="Arrastrar para redimensionar"></div>
+                        </div>
                     </div>
-                </div>
-            `;
-            document.execCommand('insertHTML', false, polaroidHtml);
-            saveBookData();
+                `;
+                document.execCommand('insertHTML', false, polaroidHtml);
+                saveBookData();
+            };
+            imgObj.src = e.target.result;
         };
         reader.readAsDataURL(file);
     }
@@ -403,3 +422,20 @@ imageUpload.addEventListener('change', function() {
 
 // INICIAR
 loadBookData();
+
+// ==========================================
+// BOTÓN COLAPSABLE DE BARRA (MÓVIL IOS SAFE AREA)
+// ==========================================
+const toggleToolbarBtn = document.getElementById('toggle-toolbar-btn');
+const toolbarElement = document.querySelector('.toolbar');
+
+if (toggleToolbarBtn && toolbarElement) {
+    toggleToolbarBtn.addEventListener('click', () => {
+        toolbarElement.classList.toggle('collapsed');
+    });
+    
+    // En móviles iniciamos con la barra escondida para facilitar lectura
+    if (window.innerWidth <= 950) {
+        toolbarElement.classList.add('collapsed');
+    }
+}
