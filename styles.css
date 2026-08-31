@@ -39,17 +39,6 @@ body {
 .brand { display: flex; align-items: center; gap: 10px; }
 
 /* BARRA DE HERRAMIENTAS - CENTRADO PERFECTO Y RESPONSIVA */
-.toggle-toolbar-btn {
-    position: fixed; top: 15px; right: 20px; z-index: 2000;
-    width: 45px; height: 45px; border-radius: 50%;
-    background: var(--toolbar-bg); border: 1px solid var(--toolbar-border);
-    color: var(--accent-pink); font-size: 1.2rem; cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    display: flex; justify-content: center; align-items: center;
-}
-.toggle-toolbar-btn:hover { transform: scale(1.1); background: #fff; }
-
 .toolbar {
     position: fixed; 
     top: 70px; 
@@ -59,11 +48,6 @@ body {
     padding: 8px 20px; border-radius: 40px; display: flex; gap: 12px; align-items: center;
     box-shadow: 0 4px 15px rgba(0,0,0,0.12); z-index: 1000; backdrop-filter: blur(8px);
     width: max-content; max-width: 95vw;
-    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), visibility 0.4s;
-}
-.toolbar.collapsed {
-    opacity: 0; visibility: hidden; pointer-events: none;
-    transform: translate(-50%, -30px);
 }
 .toolbar select, .tool-btn {
     background: transparent; border: none; color: var(--text-color); font-family: inherit;
@@ -293,14 +277,10 @@ body {
     
     .app-container { padding-top: 80px; padding-bottom: 90px; }
     
-    .toggle-toolbar-btn { top: 10px; right: 10px; width: 40px; height: 40px; }
-    
     .toolbar { 
         justify-content: flex-start; overflow-x: auto; -webkit-overflow-scrolling: touch; 
-        scrollbar-width: none; top: 60px; width: 95vw; padding: 10px 15px;
+        scrollbar-width: none; top: 10px; width: 95vw; padding: 10px 15px;
     }
-    .toolbar.collapsed { transform: translate(-50%, -20px); }
-    .toolbar::-webkit-scrollbar { display: none; } 
     .toolbar::-webkit-scrollbar { display: none; } 
     
     .book-container { padding: 0 15px; width: 100%; display: flex; justify-content: center; }
