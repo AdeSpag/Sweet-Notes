@@ -3,78 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Recetario Aesthetic</title>
-    <!-- Favicon minimalista de porción de torta -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍰</text></svg>">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&family=Kalam:wght@300;400&display=swap" rel="stylesheet">
+    <title>Mi Recetario Vintage</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
+    
+    <!-- Google Fonts: Typewriter (Special Elite), Calligraphy (Dancing Script), and Classic (Lora) -->
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Dancing+Script:wght@500;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="app-container">
-        <header class="app-header">
-            <div class="brand">
-                <span class="logo">🍰</span>
-                <h1>Mis Recetas</h1>
-            </div>
-            <div class="recipe-tabs">
-                <button class="tab-btn active" data-recipe="carrot-cake">Carrot Cake</button>
-                <button class="tab-btn" data-recipe="milanesas">Milanesas</button>
-            </div>
-            <p class="edit-hint">✨ Tip: Edita cualquier texto y se guardará automáticamente ✨</p>
-        </header>
+    
+    <!-- BARRA DE HERRAMIENTAS SUTIL (ESTILO WORD) -->
+    <div class="toolbar">
+        <select id="fontName" title="Tipo de letra">
+            <option value="'Lora', serif">Clásica</option>
+            <option value="'Dancing Script', cursive">Caligrafía</option>
+            <option value="'Special Elite', monospace">Máquina de escribir</option>
+        </select>
+        <select id="fontSize" title="Tamaño">
+            <option value="3">Normal</option>
+            <option value="5">Título Grande</option>
+            <option value="6">Título Enorme</option>
+        </select>
+        <div class="divider"></div>
+        <button class="tool-btn" data-command="bold" title="Negrita"><b>B</b></button>
+        <button class="tool-btn" data-command="italic" title="Cursiva"><i>I</i></button>
+        <button class="tool-btn" data-command="underline" title="Subrayado"><u>U</u></button>
+        <div class="divider"></div>
+        <button class="tool-btn" data-command="justifyLeft" title="Alinear Izquierda">⫷</button>
+        <button class="tool-btn" data-command="justifyCenter" title="Centrar">≡</button>
+        <button class="tool-btn" data-command="insertUnorderedList" title="Viñetas">•</button>
+    </div>
 
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="app-container">
+        
+        <!-- STICKERS (Aesthetic, Moños, Curitas, etc.) -->
+        <div class="sticker s-bow">🎀</div>
+        <div class="sticker s-cake">🍰</div>
+        <div class="sticker s-sparkles">✨</div>
+        <div class="sticker s-bandaid">🩹</div>
+        <div class="sticker s-stethoscope">🩺</div>
+        <div class="sticker s-heart">💖</div>
+
+        <!-- EL LIBRO -->
         <main class="book-container">
-            <div class="book">
+            <button id="prev-page" class="nav-btn left-nav" title="Página anterior">❮</button>
+            
+            <div class="book" id="book-element">
                 <!-- PÁGINA IZQUIERDA -->
                 <div class="page left-page">
-                    <h2 class="recipe-title" contenteditable="true" id="recipe-title"></h2>
-                    
-                    <div class="ingredients-section">
-                        <h3 class="section-title">Ingredientes <span>♡</span></h3>
-                        
-                        <div id="ingredients-container" contenteditable="true" class="editable-area">
-                            <!-- Los ingredientes se inyectan con JS -->
-                        </div>
+                    <div class="page-content" id="page-left" contenteditable="true">
+                        <!-- Contenido dinámico -->
                     </div>
+                    <div class="page-number" id="num-left">1</div>
                 </div>
 
                 <!-- PÁGINA DERECHA -->
                 <div class="page right-page">
-                    <div class="steps-section">
-                        <h3 class="section-title">Preparación <span>♡</span></h3>
-                        <ol id="steps-container" contenteditable="true" class="steps-list editable-area">
-                            <!-- Los pasos se inyectan con JS -->
-                        </ol>
+                    <div class="page-content" id="page-right" contenteditable="true">
+                        <!-- Contenido dinámico -->
                     </div>
-
-                    <div class="right-bottom-layout">
-                        <!-- POST-IT (Notas) -->
-                        <div class="post-it-container">
-                            <div class="post-it">
-                                <h4 class="note-title">Notas ♡</h4>
-                                <p id="recipe-notes" contenteditable="true" class="editable-area"></p>
-                            </div>
-                        </div>
-
-                        <!-- POLAROID -->
-                        <div class="polaroid-container">
-                            <div class="polaroid">
-                                <div class="polaroid-image" id="recipe-image">
-                                    <!-- Imagen -->
-                                </div>
-                                <div class="polaroid-caption" contenteditable="true" id="recipe-caption" class="editable-area">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="page-number" id="num-right">2</div>
                 </div>
             </div>
-        </main>
-    </div>
 
-    <!-- Toast de Notificación -->
-    <div id="toast" class="toast">Guardado automático ✨</div>
+            <button id="next-page" class="nav-btn right-nav" title="Siguiente página / Nueva página">❯</button>
+        </main>
+        
+        <!-- Indicador de guardado silencioso -->
+        <div id="save-indicator" class="save-indicator">Guardado en tu diario...</div>
+    </div>
 
     <script src="script.js"></script>
 </body>

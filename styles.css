@@ -1,16 +1,14 @@
-/* PALETA DE COLORES */
+/* PALETA VINTAGE RÚSTICA + PINKY */
 :root {
-    --bg-app: #fdf5f7;
-    --ivory-bloom: #FFF0F5;
-    --powder-rose: #E2A6BA;
-    --petal-dust: #B6A7C;
-    --blush-wine: #6F1F3B;
-    --rose-ink: #3A071F;
-    --post-it-yellow: #fff4b3;
+    --bg-outside: #ebdce0; /* Rosa viejo/sucio */
+    --paper-color: #f8f4e6; /* Crema viejo */
+    --paper-edge: #d8c9bc;
+    --text-color: #4a3b32; /* Marrón oscuro rústico */
+    --toolbar-bg: rgba(255, 245, 247, 0.9);
+    --toolbar-border: #e2cdd2;
+    --accent-pink: #d98a9d;
     
-    --font-title: 'Playfair Display', serif;
-    --font-body: 'Lato', sans-serif;
-    --font-handwriting: 'Kalam', cursive;
+    --font-ui: 'Lora', serif;
 }
 
 * {
@@ -20,382 +18,264 @@
 }
 
 body {
-    background-color: var(--bg-app);
-    background-image: radial-gradient(var(--powder-rose) 1px, transparent 1px);
-    background-size: 20px 20px;
-    font-family: var(--font-body);
-    color: var(--rose-ink);
+    background-color: var(--bg-outside);
+    /* Textura sutil de fondo exterior */
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm4 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2z' fill='%23dcbcc3' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+    font-family: var(--font-ui);
+    color: var(--text-color);
     min-height: 100vh;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.app-container {
-    width: 100%;
-    max-width: 1100px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-}
-
-/* HEADER & BRAND */
-.app-header {
-    text-align: center;
-}
-
-.brand {
-    display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 15px;
+    overflow-x: hidden;
 }
 
-.logo {
-    font-size: 2.5rem;
-    filter: drop-shadow(2px 2px 4px rgba(226, 166, 186, 0.4));
-}
-
-.brand h1 {
-    font-family: var(--font-title);
-    color: var(--rose-ink);
-    font-size: 2.8rem;
-    font-style: italic;
-}
-
-.recipe-tabs {
+/* BARRA DE HERRAMIENTAS (TOOLBAR) */
+.toolbar {
+    position: fixed;
+    top: 15px;
+    background: var(--toolbar-bg);
+    border: 1px solid var(--toolbar-border);
+    padding: 8px 15px;
+    border-radius: 30px;
     display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 10px;
+    gap: 10px;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    z-index: 100;
+    backdrop-filter: blur(5px);
 }
 
-.tab-btn {
-    background-color: var(--ivory-bloom);
-    color: var(--blush-wine);
-    border: 1px solid var(--powder-rose);
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-family: var(--font-body);
+.toolbar select, .tool-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-family: inherit;
     font-size: 1rem;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    padding: 5px 8px;
+    border-radius: 5px;
+    transition: background 0.2s;
+    outline: none;
 }
 
-.tab-btn:hover {
-    background-color: var(--powder-rose);
-    color: white;
+.toolbar select {
+    border: 1px solid transparent;
 }
 
-.tab-btn.active {
-    background-color: var(--blush-wine);
-    color: white;
-    border-color: var(--blush-wine);
+.toolbar select:hover, .tool-btn:hover {
+    background: rgba(217, 138, 157, 0.2);
 }
 
-.edit-hint {
-    font-size: 0.85rem;
-    color: var(--petal-dust);
-    font-style: italic;
+.divider {
+    width: 1px;
+    height: 20px;
+    background: var(--toolbar-border);
 }
 
-/* LIBRO COMPLETO */
+/* CONTENEDOR APP Y LIBRO */
+.app-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    padding-top: 60px; /* Espacio para el toolbar */
+}
+
 .book-container {
-    perspective: 1500px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    z-index: 20;
+    perspective: 2000px;
 }
 
 .book {
     display: flex;
-    background-color: var(--ivory-bloom);
-    border-radius: 12px;
+    background-color: var(--paper-color);
+    border-radius: 4px;
+    width: 800px;
+    height: 600px;
     box-shadow: 
-        0 15px 35px rgba(58, 7, 31, 0.1),
-        inset 0 0 40px rgba(226, 166, 186, 0.2);
+        10px 20px 40px rgba(0,0,0,0.15),
+        inset 0 0 50px rgba(186, 160, 140, 0.2); /* Bordes añejados */
     position: relative;
-    overflow: hidden;
+    transition: transform 0.4s ease;
 }
 
-/* Lomo del libro simulado en pantallas grandes */
-@media (min-width: 769px) {
-    .book::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 50%;
-        width: 40px;
-        transform: translateX(-50%);
-        background: linear-gradient(to right, 
-            rgba(0,0,0,0) 0%, 
-            rgba(0,0,0,0.05) 40%,
-            rgba(0,0,0,0.08) 50%,
-            rgba(0,0,0,0.05) 60%,
-            rgba(0,0,0,0) 100%);
-        pointer-events: none;
-    }
+/* Lomo del libro vintage */
+.book::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 50px;
+    transform: translateX(-50%);
+    background: linear-gradient(to right, 
+        rgba(0,0,0,0) 0%, 
+        rgba(0,0,0,0.08) 20%,
+        rgba(0,0,0,0.15) 50%,
+        rgba(0,0,0,0.08) 80%,
+        rgba(0,0,0,0) 100%);
+    pointer-events: none;
+    border-left: 1px solid rgba(0,0,0,0.03);
+    border-right: 1px solid rgba(0,0,0,0.03);
 }
 
 /* PÁGINAS */
 .page {
     flex: 1;
-    padding: 40px;
+    padding: 50px 40px;
     display: flex;
     flex-direction: column;
+    position: relative;
+    /* Textura de papel interior */
+    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
 }
 
 .left-page {
-    border-right: 1px dashed var(--powder-rose);
+    border-right: 1px solid rgba(0,0,0,0.05);
 }
 
-/* TIPOGRAFÍA & CONTENIDO */
-.recipe-title {
-    font-family: var(--font-title);
-    font-size: 2.8rem;
-    color: var(--rose-ink);
-    margin-bottom: 30px;
-    text-align: center;
-    line-height: 1.2;
-}
-
-.section-title {
-    font-family: var(--font-title);
-    font-size: 1.5rem;
-    color: var(--blush-wine);
-    margin-bottom: 15px;
-    border-bottom: 2px dotted var(--powder-rose);
-    padding-bottom: 5px;
-    display: inline-block;
-}
-
-.section-title span {
-    font-size: 1rem;
-    color: var(--powder-rose);
-}
-
-/* INGREDIENTES */
-.ingredient-category {
-    margin-bottom: 20px;
-}
-
-.ingredient-category-title {
-    font-weight: 700;
+.page-content {
+    flex: 1;
+    outline: none;
     font-size: 1.1rem;
-    color: var(--rose-ink);
-    background-color: rgba(226, 166, 186, 0.2);
-    padding: 3px 10px;
-    border-radius: 8px;
-    display: inline-block;
-    margin-bottom: 10px;
-}
-
-.ingredients-list {
-    list-style: none;
-}
-
-.ingredients-list li {
-    margin-bottom: 8px;
-    font-size: 1.05rem;
-    line-height: 1.5;
-    position: relative;
-    padding-left: 20px;
-}
-
-.ingredients-list li::before {
-    content: '♡';
-    position: absolute;
-    left: 0;
-    color: var(--powder-rose);
-    font-size: 0.9rem;
-}
-
-/* PASOS */
-.steps-list {
-    list-style: none;
-    counter-reset: steps-counter;
-}
-
-.steps-list li {
-    margin-bottom: 15px;
-    font-size: 1.05rem;
     line-height: 1.6;
-    position: relative;
-    padding-left: 45px;
-    min-height: 35px;
+    overflow-y: auto;
+    /* Custom scrollbar for aesthetic */
 }
 
-.steps-list li::before {
-    counter-increment: steps-counter;
-    content: counter(steps-counter);
+.page-content::-webkit-scrollbar {
+    width: 6px;
+}
+.page-content::-webkit-scrollbar-thumb {
+    background: rgba(186, 160, 140, 0.5);
+    border-radius: 10px;
+}
+
+.page-number {
     position: absolute;
-    left: 0;
-    top: -2px;
-    width: 30px;
-    height: 30px;
-    background-color: var(--powder-rose);
-    color: white;
+    bottom: 20px;
+    font-size: 0.9rem;
+    color: #a89a8e;
+    font-style: italic;
+}
+
+#num-left { left: 30px; }
+#num-right { right: 30px; }
+
+/* NAVEGACIÓN (BOTONES DE PASAR PÁGINA) */
+.nav-btn {
+    background: var(--paper-color);
+    border: 2px solid var(--paper-edge);
+    color: var(--text-color);
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 2px 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.2s;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-weight: bold;
-    font-family: var(--font-title);
-    font-size: 1.1rem;
-    box-shadow: 0 2px 4px rgba(226, 166, 186, 0.5);
 }
 
-/* EDITABLES */
-.editable-area {
-    min-height: 50px;
+.nav-btn:hover {
+    background: var(--toolbar-bg);
+    transform: scale(1.1);
 }
 
-[contenteditable="true"] {
-    outline: none;
-    border-radius: 4px;
-    transition: background 0.2s, box-shadow 0.2s;
-    padding: 2px 5px;
-    margin-left: -5px; /* Compensa el padding visualmente */
+.nav-btn:active {
+    transform: scale(0.95);
 }
 
-[contenteditable="true"]:hover {
-    background-color: rgba(255, 255, 255, 0.4);
-}
-
-[contenteditable="true"]:focus {
-    background-color: rgba(255, 255, 255, 0.8);
-    box-shadow: 0 0 0 2px var(--powder-rose);
-}
-
-/* LAYOUT INFERIOR DERECHO */
-.right-bottom-layout {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-top: auto;
-    padding-top: 30px;
-}
-
-/* POST-IT NOTAS */
-.post-it-container {
-    flex: 1;
-    margin-right: 20px;
-}
-
-.post-it {
-    background-color: var(--post-it-yellow);
-    padding: 20px;
-    box-shadow: 2px 4px 10px rgba(0,0,0,0.1);
-    transform: rotate(-2deg);
-    position: relative;
-    border-radius: 2px 15px 15px 15px;
-}
-
-.post-it::before {
-    content: '';
+/* STICKERS (Efecto pegatina predeterminada) */
+.sticker {
     position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 30px;
-    height: 15px;
-    background-color: rgba(226, 166, 186, 0.6);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    font-size: 4rem;
+    z-index: 30;
+    pointer-events: none; /* No interfieren con los clics */
+    filter: 
+        drop-shadow(2.5px 0px 0px white) 
+        drop-shadow(-2.5px 0px 0px white) 
+        drop-shadow(0px 2.5px 0px white) 
+        drop-shadow(0px -2.5px 0px white)
+        drop-shadow(3px 4px 5px rgba(0,0,0,0.2));
+    opacity: 0.9;
 }
 
-.note-title {
-    font-family: var(--font-title);
-    color: var(--blush-wine);
-    margin-bottom: 5px;
+/* Posiciones fijas de los stickers alrededor del libro */
+.s-bow { top: 15%; left: calc(50% - 460px); transform: rotate(-15deg); }
+.s-cake { bottom: 20%; left: calc(50% - 440px); transform: rotate(10deg); }
+.s-sparkles { top: 5%; right: calc(50% - 430px); transform: rotate(5deg); font-size: 3rem; }
+.s-bandaid { bottom: 10%; right: calc(50% - 460px); transform: rotate(-25deg); }
+.s-stethoscope { top: 40%; left: calc(50% - 480px); transform: rotate(15deg); font-size: 3.5rem; }
+.s-heart { bottom: 45%; right: calc(50% - 470px); transform: rotate(-10deg); font-size: 3rem; }
+
+/* ANIMACIÓN CAMBIO DE PÁGINA */
+.flip-animation {
+    animation: flipPage 0.4s ease-in-out;
 }
 
-.post-it p {
-    font-family: var(--font-handwriting);
-    font-size: 1.1rem;
-    line-height: 1.4;
-    color: #4a4a4a;
+@keyframes flipPage {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(0.95) translateY(-10px); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
 }
 
-/* POLAROID */
-.polaroid-container {
-    width: 180px;
-    flex-shrink: 0;
-}
-
-.polaroid {
-    background: white;
-    padding: 10px 10px 35px 10px;
-    box-shadow: 3px 5px 15px rgba(0,0,0,0.15);
-    transform: rotate(4deg);
-    transition: transform 0.3s ease;
-}
-
-.polaroid:hover {
-    transform: rotate(1deg) scale(1.05);
-    z-index: 10;
-}
-
-.polaroid-image {
-    width: 100%;
-    aspect-ratio: 1/1;
-    background-color: var(--powder-rose);
-    background-image: url('https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80');
-    background-size: cover;
-    background-position: center;
-    border: 1px solid #eee;
-}
-
-.polaroid-caption {
-    font-family: var(--font-handwriting);
-    text-align: center;
-    margin-top: 15px;
-    font-size: 1.2rem;
-    color: var(--rose-ink);
-    position: absolute;
-    bottom: 5px;
-    width: calc(100% - 20px);
-}
-
-/* TOAST NOTIFICATION */
-.toast {
+/* INDICADOR DE GUARDADO */
+.save-indicator {
     position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background-color: var(--blush-wine);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 20px;
+    bottom: 20px;
+    color: var(--accent-pink);
+    font-style: italic;
     font-size: 0.9rem;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.3s, transform 0.3s;
+    transition: opacity 0.5s;
     pointer-events: none;
-    z-index: 1000;
 }
 
-.toast.show {
+.save-indicator.show {
     opacity: 1;
-    transform: translateY(0);
 }
 
 /* RESPONSIVE */
-@media (max-width: 850px) {
+@media (max-width: 900px) {
     .book {
+        width: 95vw;
+        height: 70vh;
         flex-direction: column;
     }
     .left-page {
         border-right: none;
-        border-bottom: 2px dashed var(--powder-rose);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
     }
-    .right-bottom-layout {
-        flex-direction: column;
-        align-items: center;
-        gap: 30px;
-    }
-    .post-it-container {
-        margin-right: 0;
+    .book::after {
+        top: 50%;
+        bottom: auto;
+        left: 0;
+        right: 0;
         width: 100%;
+        height: 40px;
+        transform: translateY(-50%);
+        background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 100%);
+    }
+    .sticker {
+        display: none; /* Ocultamos stickers en móvil para limpieza */
+    }
+    .toolbar {
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 95vw;
+        border-radius: 15px;
+    }
+    .app-container {
+        padding-top: 100px;
     }
 }
