@@ -3,19 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Recetario Vintage</title>
-    <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
+    <title>Sweet Notes</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍰</text></svg>">
     
-    <!-- Google Fonts: Typewriter, Calligraphy, Classic -->
-    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Dancing+Script:wght@500;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Dancing+Script:wght@500;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Rye&display=swap" rel="stylesheet">
     
-    <!-- EL TRUCO PARA ARREGLARLO: ?v=4 fuerza a tu navegador a borrar la memoria caché y descargar el estilo nuevo -->
-    <link rel="stylesheet" href="styles.css?v=4">
+    <!-- FORZAR CACHÉ V14 - STICKERS CON RECORTE REAL PERFECTO (PNG TRANSPARENTES CREADOS) -->
+    <link rel="stylesheet" href="styles.css?v=14">
 </head>
 <body>
     
-    <!-- BARRA DE HERRAMIENTAS (ESTILO WORD) -->
+    <!-- STICKERS DE FONDO (MESA) - AHORA SON PNGs TRANSPARENTES -->
+    <img src="img/roll.png" class="bg-sticker sticker-roll" alt="Cinnamon Roll">
+    <img src="img/remy.png" class="bg-sticker sticker-remy" alt="Remy Ratatouille">
+    <img src="img/snoopy.png" class="bg-sticker sticker-snoopy" alt="Snoopy Cookie">
+
+    <header class="app-header">
+        <div class="brand">
+            <h1 style="font-family: 'Dancing Script', cursive; font-size: 2.2rem; color: #8c5b65; font-weight: 700; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">Sweet Notes</h1>
+        </div>
+    </header>
+
     <div class="toolbar">
         <select id="fontName" title="Tipo de letra">
             <option value="'Lora', serif">Clásica</option>
@@ -27,58 +35,64 @@
             <option value="5">Título Grande</option>
             <option value="6">Título Enorme</option>
         </select>
+        
         <div class="divider"></div>
+        
+        <div class="color-palette">
+            <button class="color-swatch" style="background-color: #4A3B32;" data-color="#4A3B32" title="Tinta Antigua"></button>
+            <button class="color-swatch" style="background-color: #8C5B65;" data-color="#8C5B65" title="Vino/Fucsia Oscuro"></button>
+            <button class="color-swatch" style="background-color: #D98A9D;" data-color="#D98A9D" title="Rosa Viejo"></button>
+            <button class="color-swatch" style="background-color: #F4C2C2;" data-color="#F4C2C2" title="Rosa Pastel"></button>
+            <button class="color-swatch" style="background-color: #9CAF88;" data-color="#9CAF88" title="Verde Salvia"></button>
+        </div>
+
+        <div class="divider"></div>
+
         <button class="tool-btn" data-command="bold" title="Negrita"><b>B</b></button>
         <button class="tool-btn" data-command="italic" title="Cursiva"><i>I</i></button>
         <button class="tool-btn" data-command="underline" title="Subrayado"><u>U</u></button>
+        
         <div class="divider"></div>
+        
         <button class="tool-btn" data-command="justifyLeft" title="Alinear Izquierda">⫷</button>
         <button class="tool-btn" data-command="justifyCenter" title="Centrar">≡</button>
         <button class="tool-btn" data-command="insertUnorderedList" title="Viñetas">•</button>
+        
+        <div class="divider"></div>
+        
+        <button class="tool-btn" id="btn-heart" title="Insertar Corazón">♡</button>
+        
+        <div class="divider"></div>
+
+        <button class="tool-btn" id="add-photo-btn" title="Añadir foto">📷</button>
+        <input type="file" id="image-upload" accept="image/*" style="display: none;">
     </div>
 
-    <!-- CONTENEDOR PRINCIPAL -->
     <div class="app-container">
-        
-        <!-- STICKERS AESTHETIC PREDETERMINADOS -->
-        <div class="sticker s-bow">🎀</div>
-        <div class="sticker s-cake">🍰</div>
-        <div class="sticker s-sparkles">✨</div>
-        <div class="sticker s-bandaid">🩹</div>
-        <div class="sticker s-stethoscope">🩺</div>
-        <div class="sticker s-heart">💖</div>
-        <div class="sticker s-flower">🌸</div>
-
-        <!-- EL LIBRO -->
         <main class="book-container">
             <button id="prev-page" class="nav-btn left-nav" title="Página anterior">❮</button>
             
-            <div class="book" id="book-element">
+            <div class="book is-cover" id="book-element">
+                
                 <!-- PÁGINA IZQUIERDA -->
                 <div class="page left-page">
-                    <div class="page-content" id="page-left" contenteditable="true">
-                        <!-- El JS inyecta el contenido aquí -->
-                    </div>
+                    <div class="page-content" id="page-left" contenteditable="true"></div>
                     <div class="page-number" id="num-left">1</div>
                 </div>
 
                 <!-- PÁGINA DERECHA -->
                 <div class="page right-page">
-                    <div class="page-content" id="page-right" contenteditable="true">
-                        <!-- El JS inyecta el contenido aquí -->
-                    </div>
+                    <div class="page-content" id="page-right" contenteditable="true"></div>
                     <div class="page-number" id="num-right">2</div>
                 </div>
             </div>
 
-            <button id="next-page" class="nav-btn right-nav" title="Siguiente página / Nueva hoja">❯</button>
+            <button id="next-page" class="nav-btn right-nav" title="Siguiente página">❯</button>
         </main>
         
-        <!-- Indicador de guardado silencioso -->
-        <div id="save-indicator" class="save-indicator">Guardado en tu diario...</div>
+        <div id="save-indicator" class="save-indicator">Guardado...</div>
     </div>
 
-    <!-- El ?v=4 también fuerza la carga del JS nuevo -->
-    <script src="script.js?v=4"></script>
+    <script src="script.js?v=14"></script>
 </body>
 </html>
