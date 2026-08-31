@@ -7,14 +7,15 @@
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
     
-    <!-- Google Fonts: Typewriter (Special Elite), Calligraphy (Dancing Script), and Classic (Lora) -->
+    <!-- Google Fonts: Typewriter, Calligraphy, Classic -->
     <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Dancing+Script:wght@500;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css">
+    <!-- EL TRUCO PARA ARREGLARLO: ?v=4 fuerza a tu navegador a borrar la memoria caché y descargar el estilo nuevo -->
+    <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
     
-    <!-- BARRA DE HERRAMIENTAS SUTIL (ESTILO WORD) -->
+    <!-- BARRA DE HERRAMIENTAS (ESTILO WORD) -->
     <div class="toolbar">
         <select id="fontName" title="Tipo de letra">
             <option value="'Lora', serif">Clásica</option>
@@ -39,13 +40,14 @@
     <!-- CONTENEDOR PRINCIPAL -->
     <div class="app-container">
         
-        <!-- STICKERS (Aesthetic, Moños, Curitas, etc.) -->
+        <!-- STICKERS AESTHETIC PREDETERMINADOS -->
         <div class="sticker s-bow">🎀</div>
         <div class="sticker s-cake">🍰</div>
         <div class="sticker s-sparkles">✨</div>
         <div class="sticker s-bandaid">🩹</div>
         <div class="sticker s-stethoscope">🩺</div>
         <div class="sticker s-heart">💖</div>
+        <div class="sticker s-flower">🌸</div>
 
         <!-- EL LIBRO -->
         <main class="book-container">
@@ -55,7 +57,7 @@
                 <!-- PÁGINA IZQUIERDA -->
                 <div class="page left-page">
                     <div class="page-content" id="page-left" contenteditable="true">
-                        <!-- Contenido dinámico -->
+                        <!-- El JS inyecta el contenido aquí -->
                     </div>
                     <div class="page-number" id="num-left">1</div>
                 </div>
@@ -63,19 +65,20 @@
                 <!-- PÁGINA DERECHA -->
                 <div class="page right-page">
                     <div class="page-content" id="page-right" contenteditable="true">
-                        <!-- Contenido dinámico -->
+                        <!-- El JS inyecta el contenido aquí -->
                     </div>
                     <div class="page-number" id="num-right">2</div>
                 </div>
             </div>
 
-            <button id="next-page" class="nav-btn right-nav" title="Siguiente página / Nueva página">❯</button>
+            <button id="next-page" class="nav-btn right-nav" title="Siguiente página / Nueva hoja">❯</button>
         </main>
         
         <!-- Indicador de guardado silencioso -->
         <div id="save-indicator" class="save-indicator">Guardado en tu diario...</div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- El ?v=4 también fuerza la carga del JS nuevo -->
+    <script src="script.js?v=4"></script>
 </body>
 </html>

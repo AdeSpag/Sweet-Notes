@@ -1,13 +1,13 @@
-/* PALETA VINTAGE RÚSTICA + PINKY */
+/* =========================================
+   PALETA VINTAGE RÚSTICA + PINKY
+   ========================================= */
 :root {
-    --bg-outside: #ebdce0; /* Rosa viejo/sucio */
-    --paper-color: #f8f4e6; /* Crema viejo */
-    --paper-edge: #d8c9bc;
-    --text-color: #4a3b32; /* Marrón oscuro rústico */
-    --toolbar-bg: rgba(255, 245, 247, 0.9);
-    --toolbar-border: #e2cdd2;
+    --bg-outside: #e6d3d8; /* Rosa viejo de fondo del escritorio */
+    --paper-color: #FDF9F1; /* Crema vintage para las hojas */
+    --text-color: #4A3B32; /* Marrón oscuro para simular tinta antigua */
+    --toolbar-bg: rgba(255, 245, 247, 0.85);
+    --toolbar-border: #d4b5bc;
     --accent-pink: #d98a9d;
-    
     --font-ui: 'Lora', serif;
 }
 
@@ -19,8 +19,8 @@
 
 body {
     background-color: var(--bg-outside);
-    /* Textura sutil de fondo exterior */
-    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20.5V18H0v-2h20v-2H0v-2h20v-2H0V8h20V6H0V4h20V2H0V0h22v20h2V0h2v20h2V0h2v20h2V0h2v20h2V0h2v20h2v2H20v-1.5zM0 20h2v20H0V20zm4 0h2v20H4V20zm4 0h2v20H8V20zm4 0h2v20h-2V20zm4 0h2v20h-2V20zm4 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2zm0 4h20v2H20v-2z' fill='%23dcbcc3' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+    /* Textura muy sutil para el fondo exterior simulando madera pintada o tapete viejo */
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm20 20h20v20H20V20zM0 20h20v20H0V20z' fill='%23dcbcc3' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
     font-family: var(--font-ui);
     color: var(--text-color);
     min-height: 100vh;
@@ -30,20 +30,22 @@ body {
     overflow-x: hidden;
 }
 
-/* BARRA DE HERRAMIENTAS (TOOLBAR) */
+/* =========================================
+   BARRA DE HERRAMIENTAS (TOOLBAR)
+   ========================================= */
 .toolbar {
     position: fixed;
-    top: 15px;
+    top: 20px;
     background: var(--toolbar-bg);
     border: 1px solid var(--toolbar-border);
-    padding: 8px 15px;
-    border-radius: 30px;
+    padding: 10px 20px;
+    border-radius: 40px;
     display: flex;
-    gap: 10px;
+    gap: 15px;
     align-items: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    z-index: 100;
-    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    z-index: 1000;
+    backdrop-filter: blur(8px);
 }
 
 .toolbar select, .tool-btn {
@@ -51,29 +53,33 @@ body {
     border: none;
     color: var(--text-color);
     font-family: inherit;
-    font-size: 1rem;
+    font-size: 1.05rem;
     cursor: pointer;
-    padding: 5px 8px;
-    border-radius: 5px;
-    transition: background 0.2s;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: all 0.2s;
     outline: none;
 }
 
 .toolbar select {
-    border: 1px solid transparent;
+    border: 1px solid rgba(0,0,0,0.1);
+    background-color: rgba(255,255,255,0.5);
 }
 
 .toolbar select:hover, .tool-btn:hover {
-    background: rgba(217, 138, 157, 0.2);
+    background: rgba(217, 138, 157, 0.25);
+    transform: translateY(-2px);
 }
 
 .divider {
     width: 1px;
-    height: 20px;
+    height: 25px;
     background: var(--toolbar-border);
 }
 
-/* CONTENEDOR APP Y LIBRO */
+/* =========================================
+   CONTENEDOR APP Y LIBRO
+   ========================================= */
 .app-container {
     flex: 1;
     display: flex;
@@ -81,12 +87,13 @@ body {
     align-items: center;
     width: 100%;
     position: relative;
-    padding-top: 60px; /* Espacio para el toolbar */
+    padding-top: 80px; /* Deja lugar para la toolbar */
 }
 
 .book-container {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 20px;
     position: relative;
     z-index: 20;
@@ -96,58 +103,67 @@ body {
 .book {
     display: flex;
     background-color: var(--paper-color);
-    border-radius: 4px;
-    width: 800px;
-    height: 600px;
+    border-radius: 5px 15px 15px 5px;
+    width: 900px; /* Tamaño fijo para que nunca se aplaste como en tu foto */
+    height: 600px; /* Tamaño fijo */
     box-shadow: 
-        10px 20px 40px rgba(0,0,0,0.15),
-        inset 0 0 50px rgba(186, 160, 140, 0.2); /* Bordes añejados */
+        15px 20px 40px rgba(0,0,0,0.15),
+        inset 0 0 60px rgba(186, 160, 140, 0.15); /* Efecto añejado en los bordes */
     position: relative;
     transition: transform 0.4s ease;
 }
 
-/* Lomo del libro vintage */
-.book::after {
+/* Lomo central del diario (la sombra del medio) */
+.book::before {
     content: '';
     position: absolute;
+    left: 50%;
     top: 0;
     bottom: 0;
-    left: 50%;
-    width: 50px;
+    width: 40px;
     transform: translateX(-50%);
     background: linear-gradient(to right, 
         rgba(0,0,0,0) 0%, 
-        rgba(0,0,0,0.08) 20%,
-        rgba(0,0,0,0.15) 50%,
-        rgba(0,0,0,0.08) 80%,
+        rgba(0,0,0,0.06) 20%,
+        rgba(0,0,0,0.1) 50%,
+        rgba(0,0,0,0.06) 80%,
         rgba(0,0,0,0) 100%);
     pointer-events: none;
-    border-left: 1px solid rgba(0,0,0,0.03);
-    border-right: 1px solid rgba(0,0,0,0.03);
+    z-index: 10;
 }
 
-/* PÁGINAS */
+/* =========================================
+   LAS PÁGINAS DE PAPEL
+   ========================================= */
 .page {
     flex: 1;
-    padding: 50px 40px;
+    padding: 50px 45px;
     display: flex;
     flex-direction: column;
     position: relative;
-    /* Textura de papel interior */
-    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+    /* Líneas sutiles tipo cuaderno viejo */
+    background-image: repeating-linear-gradient(transparent, transparent 31px, rgba(200, 150, 160, 0.1) 32px);
+    background-position: 0 50px; /* Empieza debajo del margen superior */
 }
 
 .left-page {
     border-right: 1px solid rgba(0,0,0,0.05);
+    border-radius: 5px 0 0 5px;
+}
+
+.right-page {
+    border-radius: 0 15px 15px 0;
 }
 
 .page-content {
     flex: 1;
     outline: none;
-    font-size: 1.1rem;
-    line-height: 1.6;
+    font-size: 1.15rem;
+    line-height: 32px; /* Alineado con las líneas del fondo */
     overflow-y: auto;
-    /* Custom scrollbar for aesthetic */
+    /* Custom scrollbar para que quede lindo */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(186, 160, 140, 0.5) transparent;
 }
 
 .page-content::-webkit-scrollbar {
@@ -158,21 +174,30 @@ body {
     border-radius: 10px;
 }
 
+/* Estilos dentro del editor */
+.page-content h1, .page-content h2 {
+    margin-bottom: 10px;
+    color: #8c5b65;
+}
+
 .page-number {
     position: absolute;
     bottom: 20px;
     font-size: 0.9rem;
     color: #a89a8e;
     font-style: italic;
+    font-family: 'Special Elite', monospace; /* Número tipo máquina */
 }
 
-#num-left { left: 30px; }
-#num-right { right: 30px; }
+#num-left { left: 45px; }
+#num-right { right: 45px; }
 
-/* NAVEGACIÓN (BOTONES DE PASAR PÁGINA) */
+/* =========================================
+   NAVEGACIÓN (FLECHAS)
+   ========================================= */
 .nav-btn {
     background: var(--paper-color);
-    border: 2px solid var(--paper-edge);
+    border: 2px solid var(--toolbar-border);
     color: var(--text-color);
     width: 50px;
     height: 50px;
@@ -187,95 +212,119 @@ body {
 }
 
 .nav-btn:hover {
-    background: var(--toolbar-bg);
+    background: var(--bg-outside);
     transform: scale(1.1);
+    color: var(--accent-pink);
 }
 
 .nav-btn:active {
     transform: scale(0.95);
 }
 
-/* STICKERS (Efecto pegatina predeterminada) */
+/* =========================================
+   STICKERS AESTHETIC PREPEGADOS
+   ========================================= */
 .sticker {
     position: absolute;
     font-size: 4rem;
     z-index: 30;
-    pointer-events: none; /* No interfieren con los clics */
+    pointer-events: none; /* Dejamos que los clics pasen a través de ellos */
+    
+    /* ESTE ES EL TRUCO MAGICO: Crea un borde blanco y una sombra para simular la pegatina real */
     filter: 
-        drop-shadow(2.5px 0px 0px white) 
-        drop-shadow(-2.5px 0px 0px white) 
-        drop-shadow(0px 2.5px 0px white) 
-        drop-shadow(0px -2.5px 0px white)
-        drop-shadow(3px 4px 5px rgba(0,0,0,0.2));
-    opacity: 0.9;
+        drop-shadow(3px 0px 0px white) 
+        drop-shadow(-3px 0px 0px white) 
+        drop-shadow(0px 3px 0px white) 
+        drop-shadow(0px -3px 0px white)
+        drop-shadow(4px 6px 5px rgba(0,0,0,0.25));
+    opacity: 0.95;
 }
 
-/* Posiciones fijas de los stickers alrededor del libro */
-.s-bow { top: 15%; left: calc(50% - 460px); transform: rotate(-15deg); }
-.s-cake { bottom: 20%; left: calc(50% - 440px); transform: rotate(10deg); }
-.s-sparkles { top: 5%; right: calc(50% - 430px); transform: rotate(5deg); font-size: 3rem; }
-.s-bandaid { bottom: 10%; right: calc(50% - 460px); transform: rotate(-25deg); }
-.s-stethoscope { top: 40%; left: calc(50% - 480px); transform: rotate(15deg); font-size: 3.5rem; }
-.s-heart { bottom: 45%; right: calc(50% - 470px); transform: rotate(-10deg); font-size: 3rem; }
+/* Distribución manual y desordenada alrededor del libro */
+.s-bow { top: 8%; left: calc(50% - 490px); transform: rotate(-20deg); font-size: 4.5rem; }
+.s-cake { bottom: 15%; left: calc(50% - 470px); transform: rotate(15deg); }
+.s-sparkles { top: 12%; right: calc(50% - 450px); transform: rotate(5deg); font-size: 3.5rem; }
+.s-bandaid { bottom: 8%; right: calc(50% - 480px); transform: rotate(-25deg); }
+.s-stethoscope { top: 40%; left: calc(50% - 510px); transform: rotate(10deg); font-size: 3.5rem; }
+.s-heart { bottom: 45%; right: calc(50% - 490px); transform: rotate(-10deg); font-size: 3rem; }
+.s-flower { top: 60%; right: calc(50% - 510px); transform: rotate(20deg); font-size: 3.5rem;}
 
-/* ANIMACIÓN CAMBIO DE PÁGINA */
+/* =========================================
+   ANIMACIÓN CAMBIO DE PÁGINA
+   ========================================= */
 .flip-animation {
     animation: flipPage 0.4s ease-in-out;
 }
 
 @keyframes flipPage {
     0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(0.95) translateY(-10px); opacity: 0.8; }
+    50% { transform: scale(0.95) translateY(-10px); opacity: 0.7; }
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* INDICADOR DE GUARDADO */
+/* =========================================
+   INDICADOR DE GUARDADO
+   ========================================= */
 .save-indicator {
     position: fixed;
     bottom: 20px;
-    color: var(--accent-pink);
+    color: #8c5b65;
     font-style: italic;
-    font-size: 0.9rem;
+    font-size: 1rem;
     opacity: 0;
     transition: opacity 0.5s;
     pointer-events: none;
+    background: rgba(253, 249, 241, 0.8);
+    padding: 5px 15px;
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .save-indicator.show {
     opacity: 1;
 }
 
-/* RESPONSIVE */
-@media (max-width: 900px) {
+/* =========================================
+   RESPONSIVE (CELULARES)
+   ========================================= */
+@media (max-width: 950px) {
+    .book-container {
+        flex-direction: column;
+        width: 100%;
+        padding: 0 10px;
+    }
     .book {
-        width: 95vw;
-        height: 70vh;
+        width: 100%;
+        height: 70vh; /* Ocupa el 70% de la pantalla en vertical */
         flex-direction: column;
     }
     .left-page {
         border-right: none;
-        border-bottom: 1px solid rgba(0,0,0,0.05);
+        border-bottom: 2px dashed rgba(0,0,0,0.1);
+        border-radius: 5px 5px 0 0;
     }
-    .book::after {
-        top: 50%;
-        bottom: auto;
-        left: 0;
-        right: 0;
-        width: 100%;
-        height: 40px;
-        transform: translateY(-50%);
-        background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 100%);
+    .right-page {
+        border-radius: 0 0 5px 5px;
+    }
+    .book::before {
+        display: none; /* Quitamos la sombra del medio en móviles */
     }
     .sticker {
-        display: none; /* Ocultamos stickers en móvil para limpieza */
+        display: none; /* Escondemos los stickers en móvil para no tapar texto */
     }
     .toolbar {
         flex-wrap: wrap;
         justify-content: center;
-        width: 95vw;
+        width: 95%;
         border-radius: 15px;
+        position: relative;
+        top: 0;
+        margin-bottom: 20px;
     }
     .app-container {
-        padding-top: 100px;
+        padding-top: 20px;
+    }
+    .nav-btn {
+        margin: 10px 0;
     }
 }

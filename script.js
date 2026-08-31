@@ -1,6 +1,6 @@
 // ESTADO DEL LIBRO (Páginas dinámicas)
 let pagesData = [];
-let currentSpreadIndex = 0; // Índice de la página doble actual (0, 1, 2...)
+let currentSpreadIndex = 0;
 
 // ELEMENTOS DEL DOM
 const pageLeft = document.getElementById('page-left');
@@ -12,25 +12,41 @@ const btnNext = document.getElementById('next-page');
 const bookElement = document.getElementById('book-element');
 const saveIndicator = document.getElementById('save-indicator');
 
-// CARGAR DATOS
+// CARGAR DATOS CON PROTECCIÓN ANTI-CRASH
 function loadBookData() {
-    const saved = localStorage.getItem('mi_diario_recetas');
-    if (saved) {
-        pagesData = JSON.parse(saved);
-    } else {
-        // Inicializar con una página doble en blanco (Portada / Receta 1)
-        pagesData = [
-            {
-                left: `<h1 style="text-align: center; font-family: 'Dancing Script', cursive; font-size: 48px;"><br><br><br>Mi Recetario<br>Personal</h1><p style="text-align: center;">By Ade ♡</p>`,
-                right: `<h2>Ingredientes...</h2><ul><li>...</li></ul>`
+    try {
+        const saved = localStorage.getItem('mi_diario_recetas');
+        if (saved) {
+            pagesData = JSON.parse(saved);
+            // Validar que realmente sea la estructura correcta y no caché vieja rota
+            if (!Array.isArray(pagesData) || pagesData.length === 0) {
+                throw new Error("Datos corruptos");
             }
-        ];
+        } else {
+            initDefault();
+        }
+    } catch (error) {
+        console.error("Error al cargar el diario, reseteando...", error);
+        initDefault();
     }
+    
     renderSpread(currentSpreadIndex);
+}
+
+// INICIALIZA EL LIBRO VACÍO POR PRIMERA VEZ
+function initDefault() {
+    pagesData = [
+        {
+            left: `<div style="text-align: center; font-family: 'Dancing Script', cursive; font-size: 48px; color: #8c5b65;"><br><br>Mi Recetario<br>Personal</div><div style="text-align: center; font-family: 'Lora', serif; margin-top:20px;">By Ade ♡</div>`,
+            right: `<h2 style="font-family: 'Special Elite', monospace;">Ingredientes Secretos...</h2><br><ul><li>Mucho amor</li><li>Una pizca de paciencia</li></ul>`
+        }
+    ];
 }
 
 // RENDERIZAR LA PÁGINA ACTUAL
 function renderSpread(index) {
+    if (!pagesData[index]) return; // Seguridad extra
+    
     const spread = pagesData[index];
     
     // Inyectar HTML
@@ -41,24 +57,25 @@ function renderSpread(index) {
     numLeft.textContent = (index * 2) + 1;
     numRight.textContent = (index * 2) + 2;
     
-    // Visibilidad del botón "Anterior"
+    // Ocultar botón "Anterior" si estamos en la primera hoja
     btnPrev.style.visibility = index === 0 ? 'hidden' : 'visible';
 }
 
-// GUARDAR DATOS
+// GUARDAR DATOS EN MEMORIA
 function saveBookData() {
-    // Actualizar la data actual antes de guardar
+    // Actualizar la data en la variable
     pagesData[currentSpreadIndex].left = pageLeft.innerHTML;
     pagesData[currentSpreadIndex].right = pageRight.innerHTML;
     
+    // Guardar en el navegador
     localStorage.setItem('mi_diario_recetas', JSON.stringify(pagesData));
     
-    // Mostrar indicador
+    // Mostrar indicador "Guardando..."
     saveIndicator.classList.add('show');
     setTimeout(() => saveIndicator.classList.remove('show'), 2000);
 }
 
-// AUTO-GUARDADO AL ESCRIBIR
+// AUTO-GUARDADO AL ESCRIBIR (con delay para no trabar el navegador)
 let saveTimeout;
 [pageLeft, pageRight].forEach(page => {
     page.addEventListener('input', () => {
@@ -70,7 +87,7 @@ let saveTimeout;
 // NAVEGACIÓN - PÁGINA ANTERIOR
 btnPrev.addEventListener('click', () => {
     if (currentSpreadIndex > 0) {
-        saveBookData(); // Guardar antes de cambiar
+        saveBookData();
         triggerFlipAnimation(() => {
             currentSpreadIndex--;
             renderSpread(currentSpreadIndex);
@@ -80,7 +97,7 @@ btnPrev.addEventListener('click', () => {
 
 // NAVEGACIÓN - PÁGINA SIGUIENTE / NUEVA
 btnNext.addEventListener('click', () => {
-    saveBookData(); // Guardar antes de cambiar
+    saveBookData();
     triggerFlipAnimation(() => {
         currentSpreadIndex++;
         
@@ -90,14 +107,14 @@ btnNext.addEventListener('click', () => {
         }
         
         renderSpread(currentSpreadIndex);
-        saveBookData(); // Guardar la nueva página en localStorage
+        saveBookData(); // Guardar la creación de la hoja nueva
     });
 });
 
 // EFECTO VISUAL DE CAMBIO DE PÁGINA
 function triggerFlipAnimation(callback) {
     bookElement.classList.add('flip-animation');
-    // A la mitad de la animación cambiamos el contenido
+    // A la mitad de la animación cambiamos el contenido (200ms)
     setTimeout(callback, 200); 
     // Al final removemos la clase
     setTimeout(() => {
@@ -105,14 +122,13 @@ function triggerFlipAnimation(callback) {
     }, 400);
 }
 
-// BARRA DE HERRAMIENTAS (Editor de texto estilo Word)
+// BARRA DE HERRAMIENTAS (Editor estilo Word)
 const toolBtns = document.querySelectorAll('.tool-btn');
 toolBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
         e.preventDefault();
         const command = btn.getAttribute('data-command');
         document.execCommand(command, false, null);
-        // Devolver foco al editor
         pageLeft.focus(); 
     });
 });
@@ -129,5 +145,5 @@ sizeSelect.addEventListener('change', (e) => {
     document.execCommand('fontSize', false, e.target.value);
 });
 
-// INICIAR LA APP
+// INICIAR LA APP AL ABRIR LA PÁGINA
 loadBookData();
