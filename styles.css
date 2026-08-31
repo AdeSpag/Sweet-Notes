@@ -336,9 +336,9 @@ body {
 
     /* Roll (cinnamon roll): esquina superior izquierda, asomandose */
     .sticker-roll {
-        width: 90px;
-        top: 70px;               /* Debajo de la toolbar */
-        left: -18px;             /* Semi-oculto en el borde */
+        width: 70px;
+        top: 8px;                /* Zona superior libre, encima del libro */
+        left: -28px;             /* Bien afuera del borde, casi invisible */
         bottom: auto;
         right: auto;
         transform: rotate(-20deg);
@@ -346,19 +346,19 @@ body {
 
     /* Remy: esquina inferior derecha, por encima de la zona segura iOS */
     .sticker-remy {
-        width: 85px;
-        bottom: 100px;           /* Por encima de los botones de nav fijos */
-        right: -12px;            /* Semi-oculto en el borde */
-        top: auto;
+        width: 70px;
+        width: 70px;
+        bottom: 15px;            /* Zona inferior, debajo de todo el contenido */
+        right: -22px;            /* Bien afuera del borde derecho */
         left: auto;
         transform: rotate(8deg);
     }
 
     /* Snoopy: esquina inferior izquierda, alternando con los botones */
     .sticker-snoopy {
-        width: 80px;
-        bottom: 100px;           /* Misma altura que Remy, lado opuesto */
-        left: -10px;             /* Semi-oculto en el borde */
+        width: 65px;
+        bottom: 15px;            /* Misma zona inferior que Remy */
+        left: -22px;             /* Bien afuera del borde izquierdo */
         top: auto;
         right: auto;
         transform: rotate(12deg);
@@ -586,8 +586,10 @@ body {
 /* MÓVIL: respetar zona inferior de botones de navegación */
 @media (max-width: 950px) {
     .go-to-index-btn {
-        bottom: 155px;  /* suficiente distancia sobre el boton Anterior (bottom:25px + 55px altura) */
-        left: 12px;
-        padding: 7px 12px 7px 9px;
+        /* Centrado en la parte inferior, debajo del libro, encima de los botones nav */
+        bottom: 92px;   /* justo encima de los botones nav (25px + 55px + 12px margen) */
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 8px 18px;
     }
 }
