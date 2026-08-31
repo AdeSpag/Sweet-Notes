@@ -371,115 +371,185 @@ function addNewRecipe() {
     jumpToSpread(targetSpreadIndex, targetSide);
 }
 
-function jumpToSpread(targetIndex, targetSide = 'left') {
+// ============================================================
+// ANIMACION 3D FLUIDA - REESCRITURA GPU-CLEAN (v19)
+// ============================================================
+// Principios de rendimiento aplicados:
+//  1. CERO mutaciones de DOM durante la transicion CSS.
+//     Todo el contenido de las caras se prepara ANTES de insertar el flipper.
+//  2. requestAnimationFrame x2 (doble rAF) en lugar de void offsetWidth.
+//     El doble rAF garantiza que el browser registra el estado inicial
+//     antes de aplicar la clase 'active', sin forzar un reflow sincrono.
+//  3. transitionend en lugar de setTimeout.
+//     El cleanup ocurre exactamente cuando termina la GPU, no 50ms tarde.
+//  4. will-change limpiado tras la transicion para liberar capas GPU.
+//  5. La pagina oculta durante la transicion usa opacity:0 en lugar de
+//     visibility:hidden para no causar repintado.
+// ============================================================
+
+function applyCoverStyle(el) {
+    el.style.backgroundColor = '#fcf1f3';
+    el.style.backgroundImage = 'radial-gradient(rgba(217, 138, 157, 0.15) 2px, transparent 2px)';
+    el.style.backgroundSize  = '20px 20px';
+    el.style.borderLeft      = '14px solid #e6b8c2';
+    el.style.color           = '#8c5b65';
+}
+
+function getNextIndexHTML(targetIndex, side) {
+    if (targetIndex === 1 && side === 'left') return generateIndexHTML();
+    const spread = pagesData[targetIndex] || { left: '', right: '' };
+    return fixOldPolaroids(side === 'left' ? spread.left || '' : spread.right || '');
+}
+
+function doFlip(direction, afterFlipCallback) {
+    // ---- 1. Preparar contenido de las caras ANTES de tocar el DOM visible ----
+    const nextIndex = direction === 'next'
+        ? currentSpreadIndex + 1
+        : currentSpreadIndex - 1;
+
+    const frontHTML = direction === 'next' ? pageRight.innerHTML : pageLeft.innerHTML;
+    let   backHTML;
+    if (direction === 'next') {
+        backHTML = getNextIndexHTML(nextIndex, 'left');
+    } else {
+        const prevSpread = pagesData[nextIndex] || { left: '', right: '' };
+        backHTML = fixOldPolaroids(prevSpread.right || '');
+    }
+
+    // ---- 2. Crear el flipper y sus caras (fuera del DOM todavia) ----
+    const flipper   = document.createElement('div');
+    flipper.className = 'flipper-3d turn-' + direction;
+
+    const frontFace = document.createElement('div');
+    frontFace.className = 'flipper-page front';
+    frontFace.innerHTML = frontHTML;
+
+    const backFace  = document.createElement('div');
+    backFace.className = 'flipper-page back';
+    backFace.innerHTML = backHTML;
+
+    // Estilos de portada si aplica (solo afecta al flipper, no al libro estatico)
+    if (direction === 'next' && currentSpreadIndex === 0) {
+        applyCoverStyle(frontFace);
+        bookElement.classList.remove('is-cover');
+    }
+    if (direction === 'prev' && nextIndex === 0) {
+        applyCoverStyle(backFace);
+        bookElement.classList.add('is-cover');
+    }
+
+    flipper.appendChild(frontFace);
+    flipper.appendChild(backFace);
+
+    // ---- 3. Pre-poblar la pagina estatica de destino ANTES de insertar flipper ----
+    //    La pagina queda detras del flipper con opacity:0, invisible pero ya renderizada.
+    //    Cuando el flipper se remueve, ya esta lista -> cero stutter al final.
+    if (direction === 'next') {
+        pageLeft.innerHTML = backHTML;
+        pageLeft.style.opacity = '0';
+    } else {
+        pageRight.innerHTML = backHTML;
+        pageRight.style.opacity = '0';
+    }
+
+    // ---- 4. Insertar flipper y ocultar la cara que sera reemplazada ----
+    bookElement.appendChild(flipper);
+    if (direction === 'next') {
+        pageRight.style.opacity = '0';  // ocultar pagina derecha (el flipper la cubre)
+    } else {
+        pageLeft.style.opacity  = '0';
+    }
+
+    // ---- 5. Doble rAF: garantiza que el browser pinta el estado inicial ----
+    //    antes de agregar 'active'. Evita el void offsetWidth que causa reflow.
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            flipper.classList.add('active');
+        });
+    });
+
+    // ---- 6. transitionend: cleanup exacto, sin setTimeout aproximado ----
+    function onFlipEnd(e) {
+        if (e.target !== flipper || e.propertyName !== 'transform') return;
+        flipper.removeEventListener('transitionend', onFlipEnd);
+
+        // Remover el flipper del DOM
+        if (flipper.parentNode) flipper.remove();
+
+        // Restaurar opacidad de las paginas estaticas
+        pageLeft.style.opacity  = '';
+        pageRight.style.opacity = '';
+
+        // Limpiar will-change para liberar capa GPU
+        pageLeft.style.willChange  = '';
+        pageRight.style.willChange = '';
+
+        // Actualizar estado y re-renderizar
+        afterFlipCallback();
+        isFlipping = false;
+        updateIndexBtnVisibility();
+    }
+    flipper.addEventListener('transitionend', onFlipEnd);
+
+    // Fallback de seguridad por si transitionend no dispara (ej. tab en fondo)
+    setTimeout(() => {
+        if (!isFlipping) return;
+        flipper.removeEventListener('transitionend', onFlipEnd);
+        if (flipper.parentNode) flipper.remove();
+        pageLeft.style.opacity  = '';
+        pageRight.style.opacity = '';
+        afterFlipCallback();
+        isFlipping = false;
+        updateIndexBtnVisibility();
+    }, 1200);
+}
+
+function jumpToSpread(targetIndex, targetSide) {
+    if (targetSide === undefined) targetSide = 'left';
     if (isFlipping) return;
-    
+
+    // MOVIL: salto instantaneo, sin animacion
     if (window.innerWidth <= 950) {
         if (currentSpreadIndex === targetIndex && mobileSide === targetSide) return;
         saveBookData();
         currentSpreadIndex = targetIndex;
-        mobileSide = targetSide; 
+        mobileSide = targetSide;
         renderSpread(currentSpreadIndex);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        updateIndexBtnVisibility();
         return;
     }
 
-    if (targetIndex === currentSpreadIndex) return; // En PC ya estamos en el spread correcto
+    if (targetIndex === currentSpreadIndex) return;
 
     isFlipping = true;
     saveBookData();
-    
+
     const direction = targetIndex > currentSpreadIndex ? 'next' : 'prev';
-    
-    try {
-        const flipper3D = document.createElement('div');
-        flipper3D.className = 'flipper-3d turn-' + direction;
-        
-        const frontFace = document.createElement('div');
-        frontFace.className = 'flipper-page front';
-        
-        const backFace = document.createElement('div');
-        backFace.className = 'flipper-page back';
-        
-        if (direction === 'next') {
-            frontFace.innerHTML = pageRight.innerHTML;
-            const nextSpread = pagesData[targetIndex] || {left: '', right: ''};
-            
-            // Si targetIndex es 1, la izquierda es el índice autogenerado
-            if (targetIndex === 1) {
-                backFace.innerHTML = generateIndexHTML();
-            } else {
-                backFace.innerHTML = fixOldPolaroids(nextSpread.left || '');
-            }
-            
-            if (currentSpreadIndex === 0) {
-                frontFace.style.backgroundColor = '#fcf1f3';
-                frontFace.style.backgroundImage = 'radial-gradient(rgba(217, 138, 157, 0.15) 2px, transparent 2px)';
-                frontFace.style.backgroundSize = '20px 20px';
-                if(typeof backFace !== 'undefined') backFace.style.backgroundSize = '20px 20px';;
-                frontFace.style.borderLeft = '14px solid #e6b8c2';
-                bookElement.classList.remove('is-cover');
-            }
-            
-            pageLeft.innerHTML = backFace.innerHTML;
-            
-            flipper3D.appendChild(frontFace);
-            flipper3D.appendChild(backFace);
-            bookElement.appendChild(flipper3D);
-            pageRight.style.visibility = 'hidden'; 
-            void flipper3D.offsetWidth;
-            flipper3D.classList.add('active');
-            
-        } else {
-            frontFace.innerHTML = pageLeft.innerHTML;
-            const prevSpread = pagesData[targetIndex] || {left: '', right: ''};
-            backFace.innerHTML = fixOldPolaroids(prevSpread.right || '');
-            
-            if (targetIndex === 0) {
-                backFace.style.backgroundColor = '#fcf1f3';
-                backFace.style.backgroundImage = 'radial-gradient(rgba(217, 138, 157, 0.15) 2px, transparent 2px)';
-                frontFace.style.backgroundSize = '20px 20px';
-                if(typeof backFace !== 'undefined') backFace.style.backgroundSize = '20px 20px';;
-                backFace.style.borderLeft = '14px solid #e6b8c2';
-                bookElement.classList.add('is-cover');
-            }
-            
-            pageRight.innerHTML = backFace.innerHTML;
-            
-            flipper3D.appendChild(frontFace);
-            flipper3D.appendChild(backFace);
-            bookElement.appendChild(flipper3D);
-            pageLeft.style.visibility = 'hidden';
-            void flipper3D.offsetWidth;
-            flipper3D.classList.add('active');
-        }
-        
-        setTimeout(() => {
-            pageRight.style.visibility = 'visible';
-            pageLeft.style.visibility = 'visible';
-            
-            currentSpreadIndex = targetIndex;
-            renderSpread(currentSpreadIndex);
-            
-            if (flipper3D.parentNode) flipper3D.remove();
-            isFlipping = false;
-        }, 800);
-        
-    } catch (e) {
+
+    // Si el salto es de mas de 1 spread, ir directo sin animacion (UX mas rapida)
+    const distance = Math.abs(targetIndex - currentSpreadIndex);
+    if (distance > 1) {
         isFlipping = false;
-        pageRight.style.visibility = 'visible';
-        pageLeft.style.visibility = 'visible';
-        console.error("Flip error: ", e);
+        currentSpreadIndex = targetIndex;
+        if (currentSpreadIndex >= pagesData.length) pagesData.push({ left: '', right: '' });
+        renderSpread(currentSpreadIndex);
+        updateIndexBtnVisibility();
+        return;
     }
+
+    doFlip(direction, () => {
+        currentSpreadIndex = targetIndex;
+        if (currentSpreadIndex >= pagesData.length) pagesData.push({ left: '', right: '' });
+        renderSpread(currentSpreadIndex);
+        saveBookData();
+    });
 }
 
-// ==========================================
-// ANIMACIÓN 3D FLUIDA
-// ==========================================
 function turnPage3D(direction) {
     if (isFlipping) return;
-    
-    // LÓGICA DE NAVEGACIÓN MÓVIL (SINGLE PAGE)
+
+    // MOVIL: navegacion instantanea por paginas individuales
     if (window.innerWidth <= 950) {
         saveBookData();
         if (direction === 'next') {
@@ -499,103 +569,29 @@ function turnPage3D(direction) {
                 currentSpreadIndex--; mobileSide = 'right';
             }
         }
-        
-        // Agregar nueva hoja si llegamos al final
-        if (currentSpreadIndex >= pagesData.length) {
-            pagesData.push({ left: '', right: '' });
-        }
-        
+        if (currentSpreadIndex >= pagesData.length) pagesData.push({ left: '', right: '' });
         renderSpread(currentSpreadIndex);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        updateIndexBtnVisibility();
         return;
     }
-    
-    // LÓGICA DESKTOP (Intacta)
+
+    // DESKTOP: validaciones de borde
+    if (direction === 'prev' && currentSpreadIndex <= 0) return;
+
     isFlipping = true;
-    saveBookData(); 
-
-    try {
-        const flipper3D = document.createElement('div');
-        flipper3D.className = 'flipper-3d turn-' + direction;
-        
-        const frontFace = document.createElement('div');
-        frontFace.className = 'flipper-page front';
-        
-        const backFace = document.createElement('div');
-        backFace.className = 'flipper-page back';
-
-        if (direction === 'next') {
-            frontFace.innerHTML = pageRight.innerHTML;
-            const nextSpread = pagesData[currentSpreadIndex + 1] || {left: '', right: ''};
-            backFace.innerHTML = fixOldPolaroids(nextSpread.left || '');
-            
-            if (currentSpreadIndex === 0) {
-                frontFace.style.backgroundColor = '#fcf1f3';
-                frontFace.style.backgroundImage = 'radial-gradient(rgba(217, 138, 157, 0.15) 2px, transparent 2px)';
-                frontFace.style.backgroundSize = '20px 20px';
-                if(typeof backFace !== 'undefined') backFace.style.backgroundSize = '20px 20px';;
-                frontFace.style.borderLeft = '14px solid #e6b8c2';
-                bookElement.classList.remove('is-cover');
-            }
-
-            pageLeft.innerHTML = backFace.innerHTML;
-            flipper3D.appendChild(frontFace);
-            flipper3D.appendChild(backFace);
-            bookElement.appendChild(flipper3D);
-            pageRight.style.visibility = 'hidden'; 
-            void flipper3D.offsetWidth;
-            flipper3D.classList.add('active');
-            
-        } else {
-            frontFace.innerHTML = pageLeft.innerHTML;
-            const prevSpread = pagesData[currentSpreadIndex - 1] || {left: '', right: ''};
-            backFace.innerHTML = fixOldPolaroids(prevSpread.right || '');
-            
-            if (currentSpreadIndex - 1 === 0) {
-                backFace.style.backgroundColor = '#fcf1f3';
-                backFace.style.backgroundImage = 'radial-gradient(rgba(217, 138, 157, 0.15) 2px, transparent 2px)';
-                frontFace.style.backgroundSize = '20px 20px';
-                if(typeof backFace !== 'undefined') backFace.style.backgroundSize = '20px 20px';;
-                backFace.style.borderLeft = '14px solid #e6b8c2';
-                bookElement.classList.add('is-cover');
-            }
-
-            pageRight.innerHTML = backFace.innerHTML;
-            flipper3D.appendChild(frontFace);
-            flipper3D.appendChild(backFace);
-            bookElement.appendChild(flipper3D);
-            pageLeft.style.visibility = 'hidden';
-            void flipper3D.offsetWidth;
-            flipper3D.classList.add('active');
-        }
-
-        setTimeout(() => {
-            pageRight.style.visibility = 'visible';
-            pageLeft.style.visibility = 'visible';
-            executePageChange(direction);
-            if (flipper3D.parentNode) flipper3D.remove();
-            isFlipping = false;
-        }, 800);
-        
-    } catch (e) {
-        isFlipping = false;
-        pageRight.style.visibility = 'visible';
-        pageLeft.style.visibility = 'visible';
-        console.error("Flip error: ", e);
-    }
-}
-
-function executePageChange(direction) {
-    if (direction === 'next') {
-        currentSpreadIndex++;
-        if (currentSpreadIndex >= pagesData.length) {
-            pagesData.push({ left: '', right: '' });
-        }
-    } else {
-        currentSpreadIndex--;
-    }
-    renderSpread(currentSpreadIndex);
     saveBookData();
+
+    doFlip(direction, () => {
+        if (direction === 'next') {
+            currentSpreadIndex++;
+            if (currentSpreadIndex >= pagesData.length) pagesData.push({ left: '', right: '' });
+        } else {
+            currentSpreadIndex--;
+        }
+        renderSpread(currentSpreadIndex);
+        saveBookData();
+    });
 }
 
 btnPrev.addEventListener('click', () => turnPage3D('prev'));
@@ -688,3 +684,45 @@ imageUpload.addEventListener('change', function() {
 
 // INICIAR
 loadBookData();
+
+
+// =========================================================
+//  BOTÓN FLOTANTE: VOLVER AL ÍNDICE
+// =========================================================
+const goToIndexBtn = document.getElementById('go-to-index-btn');
+
+// Función para actualizar la visibilidad del botón según la página actual
+function updateIndexBtnVisibility() {
+    if (!goToIndexBtn) return;
+    // Ocultamos el botón cuando estamos en la portada (spread 0) o en el índice (spread 1, left)
+    const onCoverOrIndex = (currentSpreadIndex === 0) ||
+                           (currentSpreadIndex === 1 && (window.innerWidth > 950 || mobileSide === 'left'));
+    if (onCoverOrIndex) {
+        goToIndexBtn.classList.add('hidden-index-btn');
+    } else {
+        goToIndexBtn.classList.remove('hidden-index-btn');
+    }
+}
+
+// Al hacer clic: saltar al índice (spread 1, página izquierda)
+goToIndexBtn.addEventListener('click', () => {
+    jumpToSpread(1, 'left');
+});
+
+// Actualizar visibilidad al cargar y monitorear cambios de página
+// Hook: sobrescribimos renderSpread para que llame a nuestra función
+const _originalRenderSpread = renderSpread;
+// Usamos un MutationObserver sobre num-left para detectar cambios de página
+const pageNumObserver = new MutationObserver(() => {
+    updateIndexBtnVisibility();
+});
+if (document.getElementById('num-left')) {
+    pageNumObserver.observe(document.getElementById('num-left'), { childList: true, characterData: true, subtree: true });
+}
+// updateIndexBtnVisibility se llama desde doFlip() (transitionend) y turnPage3D() movil.
+// Los listeners adicionales en btnPrev/btnNext son redundantes y se eliminan.
+
+
+
+// Init
+updateIndexBtnVisibility();
