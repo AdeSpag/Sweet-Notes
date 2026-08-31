@@ -1,4 +1,5 @@
 let pagesData = [];
+let recipesIndex = [];
 let currentSpreadIndex = 0;
 let mobileSide = 'right'; // Controla si en móvil se ve la izquierda o la derecha
 let isFlipping = false; 
@@ -16,10 +17,25 @@ const saveIndicator = document.getElementById('save-indicator');
 function loadBookData() {
     try {
         const saved = localStorage.getItem('mi_diario_recetas');
+        const savedIdx = localStorage.getItem('sweet_notes_index');
+        
+        if (savedIdx) {
+            recipesIndex = JSON.parse(savedIdx);
+        }
+        
         if (saved) {
             pagesData = JSON.parse(saved);
             if (!Array.isArray(pagesData) || pagesData.length === 0) throw new Error("Datos corruptos");
-            // Ya no sobreescribimos la portada (pagesData[0]) para que se conserven las imágenes del usuario.
+            
+            // Aseguramos que siempre exista la página del índice (Spread 1)
+            if (pagesData.length < 2) {
+                pagesData.push({ left: '', right: '' });
+            }
+            
+            pagesData[0] = {
+                left: '', 
+                right: `<br><br><br><h1 style="font-family: 'Dancing Script', cursive; font-size: 4rem; margin-bottom: 10px; color: #FDF9F1;">Sweet Notes</h1><h2 style="font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 300; color: #FDF9F1;">Mi Recetario Personal ♡</h2>`
+            };
         } else {
             initDefault();
         }
@@ -36,10 +52,14 @@ function initDefault() {
             right: `<br><br><br><h1 style="font-family: 'Dancing Script', cursive; font-size: 4rem; margin-bottom: 10px; color: #FDF9F1;">Sweet Notes</h1><h2 style="font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 300; color: #FDF9F1;">Mi Recetario Personal ♡</h2>`
         },
         {
-            left: `<h2 style="font-family: 'Special Elite', monospace; color: #8c5b65;">Mi Primera Receta</h2><br><ul><li>Ingrediente 1</li><li>Ingrediente 2</li></ul>`,
-            right: ``
+            left: '', // Espacio reservado estrictamente para el índice
+            right: `<h2 style="font-family: 'Special Elite', monospace; color: #8c5b65; font-size: 2.2rem;">Galletitas de Avena</h2><br><ul><li>1 Taza de Avena</li><li>2 Cucharadas de miel</li></ul>`
         }
     ];
+    recipesIndex = [
+        { title: 'Galletitas de Avena', spreadIndex: 1, side: 'right' }
+    ];
+    localStorage.setItem('sweet_notes_index', JSON.stringify(recipesIndex));
 }
 
 function fixOldPolaroids(html) {
@@ -74,13 +94,94 @@ function fixOldPolaroids(html) {
     return temp.innerHTML;
 }
 
+function editRecipeLink(event, idx) {
+    event.stopPropagation(); // Evitar saltar a la página al hacer clic en editar
+    const recipe = recipesIndex[idx];
+    const currentPageNum = (recipe.spreadIndex * 2) + (recipe.side === 'left' ? 1 : 2);
+    
+    const newPage = prompt(`¿A qué número de página querés que dirija "${recipe.title}"?`, currentPageNum);
+    if (!newPage || isNaN(parseInt(newPage))) return;
+    
+    const pageNum = parseInt(newPage);
+    if (pageNum < 3) {
+        alert("Las páginas 1 y 2 están reservadas para la portada y este índice. Elegí a partir de la 3.");
+        return;
+    }
+    
+    // Calcular nuevo spread y lado
+    const logicNum = pageNum - 1; 
+    recipe.spreadIndex = Math.floor(logicNum / 2);
+    recipe.side = (logicNum % 2 === 0) ? 'left' : 'right';
+    
+    // Crear páginas en blanco si eligen un número mayor al que existe
+    while (pagesData.length <= recipe.spreadIndex) {
+        pagesData.push({ left: '', right: '' });
+    }
+    
+    localStorage.setItem('sweet_notes_index', JSON.stringify(recipesIndex));
+    saveBookData();
+    
+    // Refrescar el índice visualmente
+    if (currentSpreadIndex === 1) pageLeft.innerHTML = generateIndexHTML();
+}
+
+function deleteRecipeLink(event, idx) {
+    event.stopPropagation();
+    if (confirm(`¿Quitar "${recipesIndex[idx].title}" del índice?\n(Tranquila, no borrará la receta de la hoja, solo quitará el link de esta lista)`)) {
+        recipesIndex.splice(idx, 1);
+        localStorage.setItem('sweet_notes_index', JSON.stringify(recipesIndex));
+        if (currentSpreadIndex === 1) pageLeft.innerHTML = generateIndexHTML();
+    }
+}
+
+function generateIndexHTML() {
+    let listHTML = '';
+    recipesIndex.forEach((recipe, idx) => {
+        const pageNum = (recipe.spreadIndex * 2) + (recipe.side === 'left' ? 1 : 2);
+        listHTML += `
+            <li class="index-item" onclick="jumpToSpread(${recipe.spreadIndex}, '${recipe.side}')" title="Ir a la página ${pageNum}">
+                <div class="index-link-area">
+                    <span class="index-title">${idx + 1}. ${recipe.title}</span>
+                    <span class="index-page-num">Pág. ${pageNum}</span>
+                </div>
+                <div class="index-actions">
+                    <button class="index-action-btn" onclick="editRecipeLink(event, ${idx})" title="Modificar número de página">✏️</button>
+                    <button class="index-action-btn" onclick="deleteRecipeLink(event, ${idx})" title="Borrar link">❌</button>
+                </div>
+            </li>
+        `;
+    });
+    
+    return `
+        <div class="index-container" contenteditable="false">
+            <h2 style="font-family: 'Dancing Script', cursive; font-size: 2.8rem; color: #8c5b65; text-align: center; border-bottom: 2px dashed rgba(217, 138, 157, 0.5); padding-bottom: 10px; margin-bottom: 20px;">Índice de Recetas</h2>
+            <ul class="index-list">
+                ${listHTML}
+            </ul>
+            <button class="add-recipe-btn" onclick="addNewRecipe()" title="Agregar nueva receta manual o automáticamente" contenteditable="false">
+                <span style="font-size: 1.5rem; font-weight: bold;">+</span> Agregar nueva receta
+            </button>
+        </div>
+    `;
+}
+
 function renderSpread(index) {
     if (!pagesData[index]) return;
     const spread = pagesData[index];
     
     bookElement.classList.toggle('is-cover', index === 0);
 
-    pageLeft.innerHTML = fixOldPolaroids(spread.left || '');
+    // Inyectamos el Índice dinámico SÓLO en la página izquierda del spread 1
+    if (index === 1) {
+        pageLeft.contentEditable = "false";
+        pageLeft.innerHTML = generateIndexHTML();
+    } else {
+        pageLeft.contentEditable = "true";
+        pageLeft.innerHTML = fixOldPolaroids(spread.left || '');
+    }
+    
+    // La página derecha siempre es editable
+    pageRight.contentEditable = "true";
     pageRight.innerHTML = fixOldPolaroids(spread.right || '');
     
     numLeft.textContent = (index * 2) + 1;
@@ -92,7 +193,6 @@ function renderSpread(index) {
         bookElement.classList.toggle('show-mobile-left', mobileSide === 'left');
         bookElement.classList.toggle('show-mobile-right', mobileSide === 'right');
     } else {
-        // Limpiamos las clases si estamos en Desktop
         bookElement.classList.remove('show-mobile-left', 'show-mobile-right');
     }
     
@@ -110,7 +210,15 @@ window.addEventListener('resize', () => {
 
 function saveBookData() {
     if (isFlipping) return; 
-    pagesData[currentSpreadIndex].left = pageLeft.innerHTML;
+    
+    if (currentSpreadIndex === 1) {
+        // En el índice (Spread 1), la página izquierda (Pág 3) es auto-generada
+        // No guardamos su HTML en el array para no romperlo
+        pagesData[currentSpreadIndex].left = '';
+    } else {
+        pagesData[currentSpreadIndex].left = pageLeft.innerHTML;
+    }
+    
     pagesData[currentSpreadIndex].right = pageRight.innerHTML;
     localStorage.setItem('mi_diario_recetas', JSON.stringify(pagesData));
     
@@ -214,7 +322,155 @@ document.addEventListener('dblclick', (e) => {
 
 
 // ==========================================
-// ANIMACIÓN 3D PERFECTA SIN "POP"
+// ÍNDICE Y SALTO DE PÁGINAS
+// ==========================================
+function addNewRecipe() {
+    const name = prompt("✨ Nombre de tu nueva receta:");
+    if (!name) return;
+    
+    const pageInput = prompt("¿En qué número de página está?\n(Dejá en blanco si querés crear una hoja nueva al final automáticamente)");
+    
+    let targetSpreadIndex, targetSide;
+    
+    if (!pageInput || isNaN(parseInt(pageInput))) {
+        // Crear nueva hoja automáticamente al final
+        pagesData.push({
+            left: `<h2 style="font-family: 'Special Elite', monospace; color: #8c5b65; font-size: 2rem;">${name}</h2><br><p>Ingredientes...</p>`,
+            right: ``
+        });
+        targetSpreadIndex = pagesData.length - 1;
+        targetSide = 'left';
+    } else {
+        const pageNum = parseInt(pageInput);
+        if (pageNum < 3) {
+            alert("Las páginas 1 y 2 están reservadas para la portada y este índice. Elegí a partir de la 3.");
+            return;
+        }
+        
+        // Calcular en base al número visual ingresado
+        const logicNum = pageNum - 1; 
+        targetSpreadIndex = Math.floor(logicNum / 2);
+        targetSide = (logicNum % 2 === 0) ? 'left' : 'right';
+        
+        // Rellenar con páginas en blanco si eligen un número que todavía no existe
+        while (pagesData.length <= targetSpreadIndex) {
+            pagesData.push({ left: '', right: '' });
+        }
+    }
+    
+    recipesIndex.push({
+        title: name,
+        spreadIndex: targetSpreadIndex,
+        side: targetSide
+    });
+    
+    saveBookData();
+    localStorage.setItem('sweet_notes_index', JSON.stringify(recipesIndex));
+    
+    // Saltar a la receta elegida
+    jumpToSpread(targetSpreadIndex, targetSide);
+}
+
+function jumpToSpread(targetIndex, targetSide = 'left') {
+    if (isFlipping) return;
+    
+    if (window.innerWidth <= 950) {
+        if (currentSpreadIndex === targetIndex && mobileSide === targetSide) return;
+        saveBookData();
+        currentSpreadIndex = targetIndex;
+        mobileSide = targetSide; 
+        renderSpread(currentSpreadIndex);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+    }
+
+    if (targetIndex === currentSpreadIndex) return; // En PC ya estamos en el spread correcto
+
+    isFlipping = true;
+    saveBookData();
+    
+    const direction = targetIndex > currentSpreadIndex ? 'next' : 'prev';
+    
+    try {
+        const flipper3D = document.createElement('div');
+        flipper3D.className = 'flipper-3d turn-' + direction;
+        
+        const frontFace = document.createElement('div');
+        frontFace.className = 'flipper-page front';
+        
+        const backFace = document.createElement('div');
+        backFace.className = 'flipper-page back';
+        
+        if (direction === 'next') {
+            frontFace.innerHTML = pageRight.innerHTML;
+            const nextSpread = pagesData[targetIndex] || {left: '', right: ''};
+            
+            // Si targetIndex es 1, la izquierda es el índice autogenerado
+            if (targetIndex === 1) {
+                backFace.innerHTML = generateIndexHTML();
+            } else {
+                backFace.innerHTML = fixOldPolaroids(nextSpread.left || '');
+            }
+            
+            if (currentSpreadIndex === 0) {
+                frontFace.style.backgroundColor = '#d98a9d';
+                frontFace.style.backgroundImage = 'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 6px)';
+                frontFace.style.borderLeft = '12px solid #b56b7f';
+                bookElement.classList.remove('is-cover');
+            }
+            
+            pageLeft.innerHTML = backFace.innerHTML;
+            
+            flipper3D.appendChild(frontFace);
+            flipper3D.appendChild(backFace);
+            bookElement.appendChild(flipper3D);
+            pageRight.style.visibility = 'hidden'; 
+            void flipper3D.offsetWidth;
+            flipper3D.classList.add('active');
+            
+        } else {
+            frontFace.innerHTML = pageLeft.innerHTML;
+            const prevSpread = pagesData[targetIndex] || {left: '', right: ''};
+            backFace.innerHTML = fixOldPolaroids(prevSpread.right || '');
+            
+            if (targetIndex === 0) {
+                backFace.style.backgroundColor = '#d98a9d';
+                backFace.style.backgroundImage = 'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 2px, transparent 2px, transparent 6px)';
+                backFace.style.borderLeft = '12px solid #b56b7f';
+                bookElement.classList.add('is-cover');
+            }
+            
+            pageRight.innerHTML = backFace.innerHTML;
+            
+            flipper3D.appendChild(frontFace);
+            flipper3D.appendChild(backFace);
+            bookElement.appendChild(flipper3D);
+            pageLeft.style.visibility = 'hidden';
+            void flipper3D.offsetWidth;
+            flipper3D.classList.add('active');
+        }
+        
+        setTimeout(() => {
+            pageRight.style.visibility = 'visible';
+            pageLeft.style.visibility = 'visible';
+            
+            currentSpreadIndex = targetIndex;
+            renderSpread(currentSpreadIndex);
+            
+            if (flipper3D.parentNode) flipper3D.remove();
+            isFlipping = false;
+        }, 800);
+        
+    } catch (e) {
+        isFlipping = false;
+        pageRight.style.visibility = 'visible';
+        pageLeft.style.visibility = 'visible';
+        console.error("Flip error: ", e);
+    }
+}
+
+// ==========================================
+// ANIMACIÓN 3D FLUIDA
 // ==========================================
 function turnPage3D(direction) {
     if (isFlipping) return;
@@ -367,7 +623,32 @@ colorSwatches.forEach(swatch => {
     });
 });
 
-// SUBIR FOTOS (COMPRESIÓN PARA NO TRABAR EL CELULAR)
+// TOOLBAR COLAPSABLE
+const mainToolbar = document.getElementById('main-toolbar');
+const closeToolbarBtn = document.getElementById('close-toolbar-btn');
+const openToolbarBtn = document.getElementById('open-toolbar-btn');
+
+function toggleToolbar(collapse) {
+    if (collapse) {
+        mainToolbar.classList.add('collapsed');
+        openToolbarBtn.classList.remove('hidden');
+        localStorage.setItem('sweet_notes_toolbar_collapsed', 'true');
+    } else {
+        mainToolbar.classList.remove('collapsed');
+        openToolbarBtn.classList.add('hidden');
+        localStorage.setItem('sweet_notes_toolbar_collapsed', 'false');
+    }
+}
+
+closeToolbarBtn.addEventListener('click', () => toggleToolbar(true));
+openToolbarBtn.addEventListener('click', () => toggleToolbar(false));
+
+// Restaurar estado de la barra
+if (localStorage.getItem('sweet_notes_toolbar_collapsed') === 'true') {
+    toggleToolbar(true);
+}
+
+// SUBIR FOTOS
 const addPhotoBtn = document.getElementById('add-photo-btn');
 const imageUpload = document.getElementById('image-upload');
 
@@ -378,42 +659,19 @@ imageUpload.addEventListener('change', function() {
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            const imgObj = new Image();
-            imgObj.onload = function() {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800; // Resolución máxima
-                const MAX_HEIGHT = 800;
-                let width = imgObj.width;
-                let height = imgObj.height;
-
-                if (width > height) {
-                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                } else {
-                    if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-                }
-
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(imgObj, 0, 0, width, height);
-
-                // Compresión agresiva a JPEG 0.7 para que no reviente el LocalStorage
-                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-
-                const polaroidHtml = `
-                    <div class="polaroid-wrapper" contenteditable="false" style="position: absolute; left: 10%; top: 10%; z-index: 50;">
-                        <div class="taped-photo" style="width: 200px;">
-                            <button class="delete-photo-btn" title="Eliminar foto">×</button>
-                            <div class="tape"></div>
-                            <img src="${compressedBase64}" alt="Receta terminada" draggable="false">
-                            <div class="resizer" title="Arrastrar para redimensionar"></div>
-                        </div>
+            const base64Image = e.target.result;
+            const polaroidHtml = `
+                <div class="polaroid-wrapper" contenteditable="false" style="position: absolute; left: 10%; top: 10%; z-index: 50;">
+                    <div class="taped-photo" style="width: 200px;">
+                        <button class="delete-photo-btn" title="Eliminar foto">×</button>
+                        <div class="tape"></div>
+                        <img src="${base64Image}" alt="Receta terminada" draggable="false">
+                        <div class="resizer" title="Arrastrar para redimensionar"></div>
                     </div>
-                `;
-                document.execCommand('insertHTML', false, polaroidHtml);
-                saveBookData();
-            };
-            imgObj.src = e.target.result;
+                </div>
+            `;
+            document.execCommand('insertHTML', false, polaroidHtml);
+            saveBookData();
         };
         reader.readAsDataURL(file);
     }
@@ -422,20 +680,3 @@ imageUpload.addEventListener('change', function() {
 
 // INICIAR
 loadBookData();
-
-// ==========================================
-// BOTÓN COLAPSABLE DE BARRA (MÓVIL IOS SAFE AREA)
-// ==========================================
-const toggleToolbarBtn = document.getElementById('toggle-toolbar-btn');
-const toolbarElement = document.querySelector('.toolbar');
-
-if (toggleToolbarBtn && toolbarElement) {
-    toggleToolbarBtn.addEventListener('click', () => {
-        toolbarElement.classList.toggle('collapsed');
-    });
-    
-    // En móviles iniciamos con la barra escondida para facilitar lectura
-    if (window.innerWidth <= 950) {
-        toolbarElement.classList.add('collapsed');
-    }
-}

@@ -255,9 +255,6 @@ body {
 }
 .save-indicator.show { opacity: 1; }
 
-/* BOTÓN COLAPSABLE MÓVIL (Oculto en desktop) */
-#toggle-toolbar-btn { display: none; }
-
 /* =========================================================
    MODO MÓVIL (DISEÑO ESPECÍFICO PARA CELULARES)
    ========================================================= */
@@ -280,36 +277,9 @@ body {
     
     .app-container { padding-top: 80px; padding-bottom: 90px; }
     
-    /* Botón colapsable iOS Safe Area */
-    #toggle-toolbar-btn {
-        display: flex; justify-content: center; align-items: center;
-        position: fixed;
-        /* env() previene que quede atrás del Notch o Isla Dinámica de iOS */
-        top: calc(env(safe-area-inset-top, 15px) + 15px);
-        right: 15px;
-        width: 50px; height: 50px;
-        border-radius: 50%;
-        background: var(--accent-pink);
-        color: #fff;
-        border: 2px solid #fff;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        font-size: 1.4rem;
-        z-index: 9999; /* Siempre arriba de todo */
-        cursor: pointer;
-    }
-    
     .toolbar { 
         justify-content: flex-start; overflow-x: auto; -webkit-overflow-scrolling: touch; 
-        scrollbar-width: none; 
-        width: 95vw; padding: 10px 15px;
-        /* Ubicar debajo del Safe Area + altura del botón */
-        top: calc(env(safe-area-inset-top, 15px) + 75px);
-        transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease;
-    }
-    .toolbar.collapsed {
-        transform: translate(-50%, -150%);
-        opacity: 0;
-        pointer-events: none;
+        scrollbar-width: none; top: 10px; width: 95vw; padding: 10px 15px;
     }
     .toolbar::-webkit-scrollbar { display: none; } 
     
@@ -348,4 +318,86 @@ body {
     .polaroid-wrapper::after { display: none; } 
     .resizer { opacity: 1; } 
     .delete-photo-btn { opacity: 1; } 
+}
+
+/* =========================================================
+   �NDICE Y BOT�N AGREGAR RECETA
+   ========================================================= */
+.index-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.index-list {
+    list-style: none !important;
+    margin: 0 0 20px 0 !important; 
+    padding: 0 !important;
+    flex-grow: 1;
+}
+.index-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 5px; border-bottom: 2px dotted rgba(217, 138, 157, 0.3);
+    cursor: pointer; transition: all 0.2s;
+    font-family: 'Lora', serif; font-size: 1.25rem;
+}
+.index-item:hover { color: #d98a9d; font-weight: bold; transform: translateX(5px); }
+.index-page-num { font-family: 'Special Elite', monospace; color: #8c5b65; font-size: 1.1rem; }
+
+.add-recipe-btn {
+    width: 100%; padding: 15px; margin-top: auto;
+    background: rgba(253, 249, 241, 0.8); border: 2px dashed #d98a9d; border-radius: 12px;
+    color: #d98a9d; font-family: 'Lora', serif; font-size: 1.2rem; font-weight: bold;
+    cursor: pointer; transition: all 0.3s; 
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+.add-recipe-btn:hover { 
+    background: #d98a9d; color: white;
+    box-shadow: 0 6px 15px rgba(217, 138, 157, 0.3);
+    border-style: solid;
+}
+
+.index-link-area {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-grow: 1; margin-right: 15px;
+}
+.index-actions {
+    display: flex; gap: 8px; opacity: 0; transition: opacity 0.2s;
+}
+.index-item:hover .index-actions { opacity: 1; }
+@media (max-width: 950px) {
+    .index-actions { opacity: 1; }
+}
+.index-action-btn {
+    background: transparent; border: none; font-size: 1.2rem; cursor: pointer;
+    padding: 3px; border-radius: 4px; filter: grayscale(100%); transition: all 0.2s;
+}
+.index-action-btn:hover { background: rgba(217, 138, 157, 0.1); filter: grayscale(0%); transform: scale(1.1); }
+
+/* =========================================================
+   TOOLBAR COLAPSABLE
+   ========================================================= */
+.toolbar {
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s ease;
+}
+.toolbar.collapsed {
+    transform: translate(-50%, -150%) !important;
+    opacity: 0;
+    pointer-events: none;
+}
+.open-toolbar-btn {
+    position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
+    background: var(--toolbar-bg); border: 1px solid var(--toolbar-border);
+    color: var(--text-color); font-family: var(--font-ui);
+    padding: 6px 16px; border-radius: 20px; cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.12); z-index: 1001;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+    font-size: 0.95rem; font-weight: bold;
+}
+.open-toolbar-btn:hover { background: rgba(217, 138, 157, 0.25); transform: translateX(-50%) scale(1.05); }
+.open-toolbar-btn.hidden { opacity: 0; pointer-events: none; transform: translate(-50%, -20px); }
+
+@media (max-width: 950px) {
+    .toolbar.collapsed { transform: translateY(-150%) !important; }
+    .open-toolbar-btn { width: auto; font-size: 0.9rem; padding: 6px 12px; }
 }
