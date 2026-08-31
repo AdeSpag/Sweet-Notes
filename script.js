@@ -1,6 +1,26 @@
+// ==========================================
+// CONFIGURACIÓN DE LA NUBE (FIREBASE)
+// ==========================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+// ⚠️ REEMPLAZÁ ESTO CON TU CÓDIGO DE FIREBASE ⚠️
+const firebaseConfig = {
+    apiKey: "PEGAR_AQUI",
+    authDomain: "PEGAR_AQUI",
+    projectId: "PEGAR_AQUI",
+    storageBucket: "PEGAR_AQUI",
+    messagingSenderId: "PEGAR_AQUI",
+    appId: "PEGAR_AQUI"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ESTADO DEL LIBRO
 let pagesData = [];
 let currentSpreadIndex = 0;
-let mobileSide = 'right'; // Controla si en móvil se ve la izquierda o la derecha
+let mobileSide = 'right'; 
 let isFlipping = false; 
 
 const pageLeft = document.getElementById('page-left');
@@ -12,22 +32,26 @@ const btnNext = document.getElementById('next-page');
 const bookElement = document.getElementById('book-element');
 const saveIndicator = document.getElementById('save-indicator');
 
-// CARGAR DATOS
-function loadBookData() {
+// CARGAR DATOS DESDE LA NUBE
+async function loadBookData() {
     try {
-        const saved = localStorage.getItem('mi_diario_recetas');
-        if (saved) {
-            pagesData = JSON.parse(saved);
-            if (!Array.isArray(pagesData) || pagesData.length === 0) throw new Error("Datos corruptos");
-            
-            pagesData[0] = {
-                left: '', 
-                right: `<br><br><br><h1 style="font-family: 'Dancing Script', cursive; font-size: 4rem; margin-bottom: 10px; color: #FDF9F1;">Sweet Notes</h1><h2 style="font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 300; color: #FDF9F1;">Mi Recetario Personal ♡</h2>`
-            };
+        const querySnapshot = await getDocs(collection(db, "sweetnotes_pages"));
+        
+        if (!querySnapshot.empty) {
+            pagesData = [];
+            querySnapshot.forEach((doc) => {
+                const index = parseInt(doc.id);
+                pagesData[index] = doc.data();
+            });
+            // Rellenar huecos si los hay
+            for(let i=0; i<pagesData.length; i++) {
+                if(!pagesData[i]) pagesData[i] = {left: '', right: ''};
+            }
         } else {
             initDefault();
         }
     } catch (error) {
+        console.warn("Aún no has conectado Firebase o hay un error. Cargando datos por defecto.", error);
         initDefault();
     }
     renderSpread(currentSpreadIndex);
@@ -112,14 +136,23 @@ window.addEventListener('resize', () => {
     }
 });
 
-function saveBookData() {
+async function saveBookData() {
     if (isFlipping) return; 
     pagesData[currentSpreadIndex].left = pageLeft.innerHTML;
     pagesData[currentSpreadIndex].right = pageRight.innerHTML;
-    localStorage.setItem('mi_diario_recetas', JSON.stringify(pagesData));
     
-    saveIndicator.classList.add('show');
-    setTimeout(() => saveIndicator.classList.remove('show'), 2000);
+    try {
+        // Guardar la hoja actual en Firestore (el ID del documento es el número de la hoja)
+        await setDoc(doc(db, "sweetnotes_pages", currentSpreadIndex.toString()), {
+            left: pagesData[currentSpreadIndex].left,
+            right: pagesData[currentSpreadIndex].right
+        });
+        
+        saveIndicator.classList.add('show');
+        setTimeout(() => saveIndicator.classList.remove('show'), 2000);
+    } catch (e) {
+        console.error("Error al guardar en la nube:", e);
+    }
 }
 
 let saveTimeout;
