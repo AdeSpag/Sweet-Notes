@@ -4,14 +4,16 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getFirestore, collection, doc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// ⚠️ REEMPLAZÁ ESTO CON TU CÓDIGO DE FIREBASE ⚠️
+// Tu código de Firebase (Configurado automáticamente)
 const firebaseConfig = {
-    apiKey: "PEGAR_AQUI",
-    authDomain: "PEGAR_AQUI",
-    projectId: "PEGAR_AQUI",
-    storageBucket: "PEGAR_AQUI",
-    messagingSenderId: "PEGAR_AQUI",
-    appId: "PEGAR_AQUI"
+    apiKey: "AIzaSyAsWmqjtwOg8O8vkiQK3BEtjWGHpRhgQfc",
+    authDomain: "sweet-notes-75b49.firebaseapp.com",
+    databaseURL: "https://sweet-notes-75b49-default-rtdb.firebaseio.com",
+    projectId: "sweet-notes-75b49",
+    storageBucket: "sweet-notes-75b49.firebasestorage.app",
+    messagingSenderId: "174424553344",
+    appId: "1:174424553344:web:74ec0ef2b362ab08f57365",
+    measurementId: "G-GRXGLGKBFS"
 };
 
 const app = initializeApp(firebaseConfig);
