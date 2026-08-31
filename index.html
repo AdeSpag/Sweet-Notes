@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Recetario Aesthetic</title>
+    <!-- Favicon minimalista de porción de torta -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍰</text></svg>">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&family=Kalam:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="brand">
+                <span class="logo">🍰</span>
+                <h1>Mis Recetas</h1>
+            </div>
+            <div class="recipe-tabs">
+                <button class="tab-btn active" data-recipe="carrot-cake">Carrot Cake</button>
+                <button class="tab-btn" data-recipe="milanesas">Milanesas</button>
+            </div>
+            <p class="edit-hint">✨ Tip: Edita cualquier texto y se guardará automáticamente ✨</p>
+        </header>
+
+        <main class="book-container">
+            <div class="book">
+                <!-- PÁGINA IZQUIERDA -->
+                <div class="page left-page">
+                    <h2 class="recipe-title" contenteditable="true" id="recipe-title"></h2>
+                    
+                    <div class="ingredients-section">
+                        <h3 class="section-title">Ingredientes <span>♡</span></h3>
+                        
+                        <div id="ingredients-container" contenteditable="true" class="editable-area">
+                            <!-- Los ingredientes se inyectan con JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PÁGINA DERECHA -->
+                <div class="page right-page">
+                    <div class="steps-section">
+                        <h3 class="section-title">Preparación <span>♡</span></h3>
+                        <ol id="steps-container" contenteditable="true" class="steps-list editable-area">
+                            <!-- Los pasos se inyectan con JS -->
+                        </ol>
+                    </div>
+
+                    <div class="right-bottom-layout">
+                        <!-- POST-IT (Notas) -->
+                        <div class="post-it-container">
+                            <div class="post-it">
+                                <h4 class="note-title">Notas ♡</h4>
+                                <p id="recipe-notes" contenteditable="true" class="editable-area"></p>
+                            </div>
+                        </div>
+
+                        <!-- POLAROID -->
+                        <div class="polaroid-container">
+                            <div class="polaroid">
+                                <div class="polaroid-image" id="recipe-image">
+                                    <!-- Imagen -->
+                                </div>
+                                <div class="polaroid-caption" contenteditable="true" id="recipe-caption" class="editable-area">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast de Notificación -->
+    <div id="toast" class="toast">Guardado automático ✨</div>
+
+    <script src="script.js"></script>
+</body>
+</html>

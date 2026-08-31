@@ -1,0 +1,401 @@
+/* PALETA DE COLORES */
+:root {
+    --bg-app: #fdf5f7;
+    --ivory-bloom: #FFF0F5;
+    --powder-rose: #E2A6BA;
+    --petal-dust: #B6A7C;
+    --blush-wine: #6F1F3B;
+    --rose-ink: #3A071F;
+    --post-it-yellow: #fff4b3;
+    
+    --font-title: 'Playfair Display', serif;
+    --font-body: 'Lato', sans-serif;
+    --font-handwriting: 'Kalam', cursive;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-app);
+    background-image: radial-gradient(var(--powder-rose) 1px, transparent 1px);
+    background-size: 20px 20px;
+    font-family: var(--font-body);
+    color: var(--rose-ink);
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* HEADER & BRAND */
+.app-header {
+    text-align: center;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.logo {
+    font-size: 2.5rem;
+    filter: drop-shadow(2px 2px 4px rgba(226, 166, 186, 0.4));
+}
+
+.brand h1 {
+    font-family: var(--font-title);
+    color: var(--rose-ink);
+    font-size: 2.8rem;
+    font-style: italic;
+}
+
+.recipe-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.tab-btn {
+    background-color: var(--ivory-bloom);
+    color: var(--blush-wine);
+    border: 1px solid var(--powder-rose);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.tab-btn:hover {
+    background-color: var(--powder-rose);
+    color: white;
+}
+
+.tab-btn.active {
+    background-color: var(--blush-wine);
+    color: white;
+    border-color: var(--blush-wine);
+}
+
+.edit-hint {
+    font-size: 0.85rem;
+    color: var(--petal-dust);
+    font-style: italic;
+}
+
+/* LIBRO COMPLETO */
+.book-container {
+    perspective: 1500px;
+}
+
+.book {
+    display: flex;
+    background-color: var(--ivory-bloom);
+    border-radius: 12px;
+    box-shadow: 
+        0 15px 35px rgba(58, 7, 31, 0.1),
+        inset 0 0 40px rgba(226, 166, 186, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Lomo del libro simulado en pantallas grandes */
+@media (min-width: 769px) {
+    .book::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 40px;
+        transform: translateX(-50%);
+        background: linear-gradient(to right, 
+            rgba(0,0,0,0) 0%, 
+            rgba(0,0,0,0.05) 40%,
+            rgba(0,0,0,0.08) 50%,
+            rgba(0,0,0,0.05) 60%,
+            rgba(0,0,0,0) 100%);
+        pointer-events: none;
+    }
+}
+
+/* PÁGINAS */
+.page {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.left-page {
+    border-right: 1px dashed var(--powder-rose);
+}
+
+/* TIPOGRAFÍA & CONTENIDO */
+.recipe-title {
+    font-family: var(--font-title);
+    font-size: 2.8rem;
+    color: var(--rose-ink);
+    margin-bottom: 30px;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.section-title {
+    font-family: var(--font-title);
+    font-size: 1.5rem;
+    color: var(--blush-wine);
+    margin-bottom: 15px;
+    border-bottom: 2px dotted var(--powder-rose);
+    padding-bottom: 5px;
+    display: inline-block;
+}
+
+.section-title span {
+    font-size: 1rem;
+    color: var(--powder-rose);
+}
+
+/* INGREDIENTES */
+.ingredient-category {
+    margin-bottom: 20px;
+}
+
+.ingredient-category-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--rose-ink);
+    background-color: rgba(226, 166, 186, 0.2);
+    padding: 3px 10px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.ingredients-list {
+    list-style: none;
+}
+
+.ingredients-list li {
+    margin-bottom: 8px;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    position: relative;
+    padding-left: 20px;
+}
+
+.ingredients-list li::before {
+    content: '♡';
+    position: absolute;
+    left: 0;
+    color: var(--powder-rose);
+    font-size: 0.9rem;
+}
+
+/* PASOS */
+.steps-list {
+    list-style: none;
+    counter-reset: steps-counter;
+}
+
+.steps-list li {
+    margin-bottom: 15px;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    position: relative;
+    padding-left: 45px;
+    min-height: 35px;
+}
+
+.steps-list li::before {
+    counter-increment: steps-counter;
+    content: counter(steps-counter);
+    position: absolute;
+    left: 0;
+    top: -2px;
+    width: 30px;
+    height: 30px;
+    background-color: var(--powder-rose);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-family: var(--font-title);
+    font-size: 1.1rem;
+    box-shadow: 0 2px 4px rgba(226, 166, 186, 0.5);
+}
+
+/* EDITABLES */
+.editable-area {
+    min-height: 50px;
+}
+
+[contenteditable="true"] {
+    outline: none;
+    border-radius: 4px;
+    transition: background 0.2s, box-shadow 0.2s;
+    padding: 2px 5px;
+    margin-left: -5px; /* Compensa el padding visualmente */
+}
+
+[contenteditable="true"]:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+[contenteditable="true"]:focus {
+    background-color: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 0 2px var(--powder-rose);
+}
+
+/* LAYOUT INFERIOR DERECHO */
+.right-bottom-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: auto;
+    padding-top: 30px;
+}
+
+/* POST-IT NOTAS */
+.post-it-container {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.post-it {
+    background-color: var(--post-it-yellow);
+    padding: 20px;
+    box-shadow: 2px 4px 10px rgba(0,0,0,0.1);
+    transform: rotate(-2deg);
+    position: relative;
+    border-radius: 2px 15px 15px 15px;
+}
+
+.post-it::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 15px;
+    background-color: rgba(226, 166, 186, 0.6);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.note-title {
+    font-family: var(--font-title);
+    color: var(--blush-wine);
+    margin-bottom: 5px;
+}
+
+.post-it p {
+    font-family: var(--font-handwriting);
+    font-size: 1.1rem;
+    line-height: 1.4;
+    color: #4a4a4a;
+}
+
+/* POLAROID */
+.polaroid-container {
+    width: 180px;
+    flex-shrink: 0;
+}
+
+.polaroid {
+    background: white;
+    padding: 10px 10px 35px 10px;
+    box-shadow: 3px 5px 15px rgba(0,0,0,0.15);
+    transform: rotate(4deg);
+    transition: transform 0.3s ease;
+}
+
+.polaroid:hover {
+    transform: rotate(1deg) scale(1.05);
+    z-index: 10;
+}
+
+.polaroid-image {
+    width: 100%;
+    aspect-ratio: 1/1;
+    background-color: var(--powder-rose);
+    background-image: url('https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80');
+    background-size: cover;
+    background-position: center;
+    border: 1px solid #eee;
+}
+
+.polaroid-caption {
+    font-family: var(--font-handwriting);
+    text-align: center;
+    margin-top: 15px;
+    font-size: 1.2rem;
+    color: var(--rose-ink);
+    position: absolute;
+    bottom: 5px;
+    width: calc(100% - 20px);
+}
+
+/* TOAST NOTIFICATION */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: var(--blush-wine);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* RESPONSIVE */
+@media (max-width: 850px) {
+    .book {
+        flex-direction: column;
+    }
+    .left-page {
+        border-right: none;
+        border-bottom: 2px dashed var(--powder-rose);
+    }
+    .right-bottom-layout {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+    }
+    .post-it-container {
+        margin-right: 0;
+        width: 100%;
+    }
+}
